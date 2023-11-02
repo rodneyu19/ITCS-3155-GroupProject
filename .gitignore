@@ -1,0 +1,15 @@
+# Ignore virtual environments
+venv/
+
+# Ignore Python byte-compiled files
+__pycache__/
+
+# Ignore environment variables file (if you have one)
+.env
+
+# Ignore editor-specific files and folders
+.vscode/
+.idea/
+
+# Ignore any local configuration files
+config.ini
