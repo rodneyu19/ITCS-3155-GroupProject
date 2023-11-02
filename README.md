@@ -38,3 +38,6 @@ We welcome all ideas and viewpoints to discuss your favorite bands, genres, conc
 
 N/A
 
+Spotify Fourm Website
+
+Profile page to edit profile
