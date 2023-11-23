@@ -5,12 +5,12 @@
 <body>
     <div class="container">
             <!--Add proper for-loop once actual posts are made-->
-            {% for i in range(2) %}
+            {% for post in all_posts %}
             <div class="card" style="width: 60rem;">
-                <h5 class="card-header">Post Title</h5>
+                <h5 class="card-header">{{ post.title }}</h5>
                 <div class="card-body">
                     <p class="card-subtitle mb-2 text-muted">by Username</p>
-                    <p class="card-text">Lorem ipsum dolor sit, amet consectetur adipisicing elit. Repellendus architecto repellat perferendis accusamus deleniti, eius qui reiciendis excepturi odio? Tempore sint quae repudiandae velit sapiente aliquid dicta, explicabo quasi obcaecati beatae culpa dolore illo!</p>
+                    <p class="card-text">{{ post.body }}</p>
                     <a href="#" class="btn btn-light">
                         <!--Thumbs up SVG-->
                         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-hand-thumbs-up" viewBox="0 0 16 16">
