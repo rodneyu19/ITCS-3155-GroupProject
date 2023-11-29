@@ -1,20 +1,27 @@
 from flask import Flask, render_template, request, redirect, url_for
-from flask_sqlalchemy import SQLAlchemy
-import spotipy
-from spotipy.oauth2 import SpotifyClientCredentials
-import os
 from src.models import db, Post, Comment
+from auth import spotify_bp
+from flask import session
+from dotenv import load_dotenv
+import os
 
 app = Flask(__name__)
 
+load_dotenv()
+
+if None in (os.getenv("DB_USER"), os.getenv("DB_PASS"), os.getenv("DB_HOST"), os.getenv("DB_PORT"), os.getenv("DB_NAME")):
+    raise ValueError("Fix the variables in your .env lmao")
+
 # Database configuration
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///your_database.db'  # Replace with your database URI
+app.config['SQLALCHEMY_DATABASE_URI'] = \
+    f'postgresql://{os.getenv("DB_USER")}:{os.getenv("DB_PASS")}@{os.getenv("DB_HOST")}:{os.getenv("DB_PORT")}/{os.getenv("DB_NAME")}'
+
+# Register Spotify blueprint from auth.py
+app.register_blueprint(spotify_bp, url_prefix="/spotify_login")
+
 db.init_app(app)
 
-# Spotify credentials setup
-client_credentials_manager = SpotifyClientCredentials(client_id=os.getenv("SPOTIFY_CLIENT_ID"),
-client_secret=os.getenv("SPOTIFY_CLIENT_SECRET"))
-sp = spotipy.Spotify(client_credentials_manager=client_credentials_manager)
+# Routes and other parts of your application...
 
 # Routes
 @app.route('/')
@@ -47,8 +54,23 @@ def add_comment(spotify_id):
     db.session.commit()
     return redirect(url_for('view_post', spotify_id=spotify_id))
 
+@app.route('/post/new', methods=['GET', 'POST'])
+def create_post_form():
+    if request.method == 'GET':
+        return render_template('create_post.html')
+    elif request.method == 'POST':
+        title = request.form.get('title')
+        body = request.form.get('body')
+        new_post = Post(title=title, body=body)
+        db.session.add(new_post)
+        db.session.commit()
+        return redirect('/')
 
-if __name__ == '__main__':
-    with app.app_context():
-        db.create_all()
+@app.route("/logout")
+def logout():
+    if "spotify_oauth" in session:
+        del session["spotify_oauth"]
+    return redirect(url_for("index"))
+
+if __name__ == "__main__":
     app.run(debug=True)

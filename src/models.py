@@ -1,5 +1,4 @@
 from flask_sqlalchemy import SQLAlchemy
-from flask_sqlalchemy import SQLAlchemy
 
 db = SQLAlchemy()
 
@@ -9,7 +8,8 @@ class Post(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     spotify_id = db.Column(db.String(100), nullable=False)
     description = db.Column(db.Text)
-# Inside src/models.py
+    title = db.Column(db.String(100))  # Adding the title field
+    body = db.Column(db.Text)  # Adding the body field
 
 
 class Comment(db.Model):
