@@ -28,7 +28,8 @@ def create_post_form():
 def create_post():
     title = request.form.get('title')
     body = request.form.get('body')
-    new_post = Post(title=title, body=body)
+    link = request.form.get('link')
+    new_post = Post(title=title, body=body, link=link)
     db.session.add(new_post)
     db.session.commit()
     return redirect('/')
