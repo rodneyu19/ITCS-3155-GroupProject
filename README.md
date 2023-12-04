@@ -15,7 +15,7 @@ Welcome to the Musica, a community for music enthusiasts to share, discuss, and 
 
 - **User-friendly Interface:** Musica provides an intuitive and visually appealing platform for easy navigation and interaction.
 - **Music Sharing:** Share your favorite songs, albums, and playlists with other users using the Spotify API.
-- **Discussion Boards:** Engage in lively discussions about various music genres, artists, upcoming concerts, and much more.
+- **Discussion Boards:** Engage in heated discussions about various music genres, artists, upcoming concerts, and much more.
 - **User Profiles:** Customize your profile, add a profile picture, and share your musical interests with the community.
 - **Search Functionality:** Easily find topics, users, or music-related content through our advanced search feature to discover new and related genres and songs!
 
@@ -32,7 +32,7 @@ We welcome input to make the Musica even better. Whether it's suggesting new fea
 
 ## Community Guidelines
 
-We welcome all ideas and viewpoints to discuss your favorite bands, genres, concert experinces, more!
+We welcome all ideas and viewpoints to discuss your favorite bands, genres, concert experinces, and more!
 
 ## License
 
