@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, redirect
+from flask import Flask, render_template, request, redirect, url_for
 from src.models import db, Post
 from dotenv import load_dotenv
 import os
@@ -31,6 +31,14 @@ def create_post():
     link = request.form.get('link')
     new_post = Post(title=title, body=body, link=link)
     db.session.add(new_post)
+    db.session.commit()
+    return redirect('/')
+
+@app.get('/post/delete/<int:post_id>')
+def delete_post(post_id):
+    print(post_id)
+    post = Post.query.get(post_id)
+    db.session.delete(post)
     db.session.commit()
     return redirect('/')
 
