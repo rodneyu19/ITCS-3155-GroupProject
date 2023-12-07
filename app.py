@@ -2,6 +2,7 @@ from flask import Flask, render_template, request, redirect
 from src.models import db, Post
 from dotenv import load_dotenv
 import os
+import urllib.parse
 
 app = Flask(__name__)
 
@@ -34,3 +35,24 @@ def create_post():
     db.session.commit()
     return redirect('/')
 
+@app.get('/login')
+def login():
+    return render_template('login.html')
+@app.get('/SpotifyLogin')
+def loginReq():
+    request = {
+        'client_id': '2bc0ff7c68354c1b9f2625ba6f642a63',
+        'response_type': 'code',
+        'scope': 'user-read-private',
+        'redirect_uri': 'https://localhost:5000/home',
+        'show_dialog': False
+    } 
+    
+    auth_url = f"'https://accounts.spotify.com/authorize'?{urllib.parse.urlencode(request)}"
+    
+    return redirect(auth_url)
+    
+
+@app.get('/profile')
+def profile():
+    return render_template('profile.html')
