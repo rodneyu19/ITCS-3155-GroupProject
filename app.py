@@ -34,10 +34,19 @@ def create_post():
     db.session.add(new_post)
     db.session.commit()
     return redirect('/')
+    
+@app.route("/register", methods=['GET', 'POST'])											
+def register():
+    form = RegistrationForm()
+    if form.validate_on_submit():
+    	flash(f'Account created for {form.username.data}!', 'success')
+    	return redirect(url_for('home'))
+    return render_template('register.html', title='Register', form=form)
 
 @app.get('/login')
 def login():
     return render_template('login.html')
+    
 @app.get('/SpotifyLogin')
 def loginReq():
     request = {
