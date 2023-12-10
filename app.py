@@ -1,14 +1,11 @@
-
 from flask import Flask, render_template, request, redirect, flash, url_for, session
-
 from src.models import db, Post
 from dotenv import load_dotenv
-from forms import SearchForm
 import os
-import urllib.parse
-from forms import RegistrationForm, LoginForm
+from forms import RegistrationForm, LoginForm, SearchForm
 from spotipy.oauth2 import SpotifyOAuth
-from time import time
+import time
+
 
 app = Flask(__name__)
 
@@ -28,7 +25,6 @@ db.init_app(app)
 
 @app.get('/')
 @app.route('/home', methods=['GET']) 
-
 def index():
     all_posts = Post.query.all()
     return render_template('home.html', all_posts=all_posts)
@@ -68,6 +64,8 @@ def login():
 
 @app.route("/spotifylogin")
 def loginwithSpotify():
+    session.clear()
+    session[TOKEN_INFO] = None
     authUrl = create_spotify_oauth().get_authorize_url()
     return redirect(authUrl)
 
@@ -77,6 +75,34 @@ def spotifyRedirect():
     code = request.args.get('code')
     session[TOKEN_INFO] =  create_spotify_oauth().get_access_token(code)
     return redirect(url_for('profile',_external=True))
+
+# Pass though Navbar
+@app.context_processor
+def base():
+	form = SearchForm()
+	return dict(form=form)
+
+# Search Funciton
+@app.route('/search', methods=['POST'])
+def search():
+    form = SearchForm()
+    posts = Post.query
+    if form.validate_on_submit():
+        if form.searched.data != None:
+            # Get data from submitted form
+            Post.searched = form.searched.data
+            # Query the Database
+            posts = posts.filter(Post.body.like('%' + Post.searched + '%'))
+            posts = Post.order_by(Post.title).all()
+            return render_template("search.html", form = form, searched = Post.searched, posts = posts)
+        else:
+            error = "Cant search nothing"
+            return render_template("search.html", form = form, searched = Post.searched, posts = posts, error=error)
+    
+
+@app.get('/profile')
+def profile():
+    return render_template('profile.html')
 
 def get_token():
     token_info = session.get(TOKEN_INFO, None)
@@ -90,10 +116,6 @@ def get_token():
 
     return token_info
 
-@app.get('/profile')
-def profile():
-    return render_template('profile.html')
-
 def create_spotify_oauth():
     return SpotifyOAuth(
         client_id =  '2bc0ff7c68354c1b9f2625ba6f642a63',
@@ -101,30 +123,6 @@ def create_spotify_oauth():
         redirect_uri =  url_for("spotifyRedirect", _external = True),
         scope= 'user-read-private'
     )
-    
-# Pass though Navbar
-@app.context_processor
-def base():
-	form = SearchForm()
-	return dict(form=form)
-
-# Search Funciton
-@app.route('/search', methods=['POST'])
-def search():
-	forms = SearchForm()
-	posts = Posts.query
-	if form.validate_on_submit():
-		# Get data from submitted form
-		post.searched = form.searched.data
-		# Query the Database
-		posts = posts.filter(Posts.body.like('%' + post.searched + '%'))
-		posts = post.order_by(Posts.title).all()
-		
-		return render_template("search.html", 
-								form = form, 
-								searched = post.searched,
-								posts = posts)
 	
 if __name__ == '__main__':
 	app.run(debug=True)
-
