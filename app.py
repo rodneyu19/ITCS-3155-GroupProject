@@ -1,6 +1,7 @@
-from flask import Flask, render_template, request, redirect
+from flask import Flask, render_template, request, redirect, flash, url_for
 from src.models import db, Post
 from dotenv import load_dotenv
+from forms import SearchForm
 import os
 
 app = Flask(__name__)
@@ -16,6 +17,7 @@ app.config['SQLALCHEMY_DATABASE_URI'] = \
 db.init_app(app)
 
 @app.get('/')
+@app.get('/home')
 def index():
     all_posts = Post.query.all()
     return render_template('home.html', all_posts=all_posts)
@@ -33,4 +35,29 @@ def create_post():
     db.session.add(new_post)
     db.session.commit()
     return redirect('/')
+    
+# Pass though Navbar
+@app.context_processor
+def base():
+	form = SearchForm()
+	return dict(form=form)
 
+# Search Funciton
+@app.route('/search', methods=['POST'])
+def search():
+	forms = SearchForm()
+	posts = Posts.query
+	if form.validate_on_submit():
+		# Get data from submitted form
+		post.searched = form.searched.data
+		# Query the Database
+		posts = posts.filter(Posts.body.like('%' + post.searched + '%'))
+		posts = post.order_by(Posts.title).all()
+		
+		return render_template("search.html", 
+								form = form, 
+								searched = post.searched,
+								posts = posts)
+	
+if __name__ == '__main__':
+	app.run(debug=True)
