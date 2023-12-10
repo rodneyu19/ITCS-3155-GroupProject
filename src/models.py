@@ -18,4 +18,6 @@ class Users(db.Model, UserMixin):
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     username = db.Column(db.String(16), nullable=False, unique=True)
     password = db.Column(db.String(255), nullable=False)
+    firstname = db.Column(db.String(16))
+    lastname = db.Column(db.String(16))
  

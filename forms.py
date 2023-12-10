@@ -19,6 +19,19 @@ class LoginForm(FlaskForm):
 	remember = BooleanField('Remember Me')
 	submit = SubmitField('Login')
 	
+class EditProfileForm(FlaskForm):
+    username = StringField('Username', validators=[DataRequired(), Length(min=2, max =16)])
+    firstname = StringField('Firstname', validators=[DataRequired(), Length(min=2, max =16)])
+    lastname = StringField('Lastname', validators=[DataRequired(), Length(min=2, max =16)])
+    password = PasswordField('Password', validators=[DataRequired(),Length(min=5)])
+    confirm_password = PasswordField('Confirm Password',validators=[DataRequired(), EqualTo('password')])
+    save = SubmitField('Save')
+    def validate_username(self, usernames):
+        user = Users.query.filter_by(username=usernames.data).first()
+        if(usernames.data != user.username):
+            if user:
+                raise ValidationError('Sorry username is already taken')
+
 # Search Form 
 class SearchForm(FlaskForm):
 	searched = StringField("Searched", validators=[DataRequired(), Length(min=1)])

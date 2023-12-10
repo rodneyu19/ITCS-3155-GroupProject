@@ -2,10 +2,10 @@ from flask import Flask, render_template, request, redirect, flash, url_for, ses
 from src.models import db, Post, Users
 from dotenv import load_dotenv
 import os
-from forms import RegistrationForm, LoginForm, SearchForm
+from forms import RegistrationForm, LoginForm, SearchForm, EditProfileForm
 from spotipy.oauth2 import SpotifyOAuth
 from flask_bcrypt import Bcrypt
-from flask_login import LoginManager, login_user
+from flask_login import LoginManager, login_user, current_user, logout_user, login_required
 import time
 
 
@@ -13,6 +13,8 @@ app = Flask(__name__)
 loginManager = LoginManager(app)
 bcrypt = Bcrypt(app)
 load_dotenv()
+loginManager.login_view = 'login'
+
 
 SECRET_KEY = os.urandom(32)
 app.config['SECRET_KEY'] = SECRET_KEY
@@ -48,6 +50,9 @@ def create_post():
 
 @app.route("/register", methods=['GET', 'POST'])
 def register():
+    if current_user.is_authenticated:
+        flash('You\'re already logged in!', 'success')
+        return redirect('/')
     form = RegistrationForm()
     if form.validate_on_submit():
         hashedPass = bcrypt.generate_password_hash(form.confirm_password.data).decode('utf8')
@@ -64,16 +69,48 @@ def load_user(user_id):
 
 @app.route("/login", methods=['GET', 'POST'])
 def login():
+    if(current_user.is_authenticated):
+        flash('You\'re already logged in!', 'success')
+        return redirect('/')
     form = LoginForm()
     if form.validate_on_submit():
         user = Users.query.filter_by(username=form.username.data).first()
         if user and bcrypt.check_password_hash(user.password, form.password.data):
             login_user(user, remember=form.remember.data)
             flash('You have been logged in!', 'success')
-            return redirect(('home'))
+            next_page = request.args.get('next')
+            return redirect(next_page) if next_page else redirect(('home'))
         else:
             flash('Invalid username or password', 'danger')
     return render_template('login.html', title='login', form=form)
+
+@app.route('/profile', methods=['GET', 'POST'])
+@login_required
+def profile():
+    form = EditProfileForm()
+    if form.validate_on_submit():
+        hashedPass = bcrypt.generate_password_hash(form.confirm_password.data).decode('utf8')
+        current_user.username = form.username.data
+        current_user.password = hashedPass
+        current_user.firstname = form.firstname.data
+        current_user.lastname = form.lastname.data
+        db.session.commit()
+        flash(f'Account updated!', 'success')
+        return redirect(url_for('profile'))
+    elif request.method == 'GET':
+        form.username.data = current_user.username
+        form.firstname.data = current_user.firstname
+        form.lastname.data = current_user.lastname
+    token = session.get(TOKEN_INFO, None)
+    if token != None:
+        flash('You have been logged in!', 'success')
+    return render_template('profile.html', title='profile', form=form)
+
+
+@app.route("/logout")
+def logout():
+    logout_user()
+    return redirect('login')
 
 @app.route("/spotifylogin")
 def spotifylogin():
@@ -110,14 +147,6 @@ def search():
             error = "Cant search nothing"
             return redirect(('home'))
     
-
-@app.get('/profile')
-def profile():
-    token = session.get(TOKEN_INFO, None)
-    if token != None:
-        flash('You have been logged in!', 'success')
-    return render_template('profile.html')
-
 def get_token():
     token_info = session.get(TOKEN_INFO, None)
     if not token_info:
@@ -138,8 +167,6 @@ def create_spotify_oauth():
         redirect_uri =  url_for("spotifyRedirect", _external = True),
         scope= 'user-read-private'
     )
-
-
 
 @app.get('/post/delete/<int:post_id>')
 def delete_post(post_id):
