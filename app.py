@@ -3,6 +3,7 @@ from src.models import db, Post
 from dotenv import load_dotenv
 import os
 import urllib.parse
+from forms import RegistrationForm, LoginForm
 
 app = Flask(__name__)
 
@@ -45,15 +46,16 @@ def register():
 
 @app.get('/login')
 def login():
-    return render_template('login.html')
+    form = LoginForm()
+    return render_template('login.html', title="Lgin", form=form)
     
-@app.get('/SpotifyLogin')
+@app.get('/spotifylogin')
 def loginReq():
     request = {
         'client_id': '2bc0ff7c68354c1b9f2625ba6f642a63',
         'response_type': 'code',
         'scope': 'user-read-private',
-        'redirect_uri': 'https://localhost:5000/home',
+        'redirect_uri': 'https://127.0.0.1:5000/home',
         'show_dialog': False
     } 
     
