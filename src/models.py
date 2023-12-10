@@ -1,6 +1,12 @@
 from flask_sqlalchemy import SQLAlchemy
+from flask_login import UserMixin
 
 db = SQLAlchemy()
+
+# @loginManager.user_loader
+# def load_user(user_id):
+#     return Users.query.get(int(user_id))
+
 
 class Post(db.Model):
     post_id = db.Column(db.Integer, primary_key=True, autoincrement=True)
@@ -8,8 +14,8 @@ class Post(db.Model):
     body = db.Column(db.Text, nullable=False)
     link = db.Column(db.String(255))
     
-class User(db.Model):
-    user_id = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    username = db.Column(db.String(16), nullable=False)
-    password = db.Column(db.String(16), nullable=False)
+class Users(db.Model, UserMixin):
+    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    username = db.Column(db.String(16), nullable=False, unique=True)
+    password = db.Column(db.String(255), nullable=False)
  

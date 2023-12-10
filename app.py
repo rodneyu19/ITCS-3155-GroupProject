@@ -1,15 +1,17 @@
 from flask import Flask, render_template, request, redirect, flash, url_for, session
-from src.models import db, Post, User
+from src.models import db, Post, Users
 from dotenv import load_dotenv
 import os
 from forms import RegistrationForm, LoginForm, SearchForm
 from spotipy.oauth2 import SpotifyOAuth
 from flask_bcrypt import Bcrypt
+from flask_login import LoginManager, login_user
 import time
 
 
 app = Flask(__name__)
-
+loginManager = LoginManager(app)
+bcrypt = Bcrypt(app)
 load_dotenv()
 
 SECRET_KEY = os.urandom(32)
@@ -48,30 +50,33 @@ def create_post():
 def register():
     form = RegistrationForm()
     if form.validate_on_submit():
-        hashedPass = Bcrypt.generate_password_hash(form.password.data)
-        user = User(username = form.username.data, password = hashedPass)
-        db.session.add(user)
+        hashedPass = bcrypt.generate_password_hash(form.confirm_password.data).decode('utf8')
+        newUser = Users(username = form.username.data, password = hashedPass)
+        db.session.add(newUser)
         db.session.commit()
         flash(f'Account created for {form.username.data}!', 'success')
-        return redirect(url_for('home'))
+        return redirect(url_for('profile'))
     return render_template('register.html', title='register', form=form)
+
+@loginManager.user_loader
+def load_user(user_id):
+    return Users.query.get(int(user_id))
 
 @app.route("/login", methods=['GET', 'POST'])
 def login():
-    session.clear()
-    session[TOKEN_INFO] = None
     form = LoginForm()
     if form.validate_on_submit():
-        
-        if form.email.data == 'admin@blog.com' and form.password.data == 'password':
+        user = Users.query.filter_by(username=form.username.data).first()
+        if user and bcrypt.check_password_hash(user.password, form.password.data):
+            login_user(user, remember=form.remember.data)
             flash('You have been logged in!', 'success')
-            return redirect('home')
+            return redirect(('home'))
         else:
-            flash('Login Unsuccessful. Please check username and password', 'danger')
+            flash('Invalid username or password', 'danger')
     return render_template('login.html', title='login', form=form)
 
 @app.route("/spotifylogin")
-def loginwithSpotify():
+def spotifylogin():
     authUrl = create_spotify_oauth().get_authorize_url()
     return redirect(authUrl)
 
@@ -120,8 +125,9 @@ def get_token():
     now = int(time.time())
     is_expired = token_info['expires_at'] - now < 60
     if(is_expired):
-        spotify_oauth = create_spotify_oauth()
-        token_info = spotify_oauth.refresh_access_token(token_info['refresh_token'])
+        redirect(url_for('login', _external=True))
+        # spotify_oauth = create_spotify_oauth()
+        # token_info = spotify_oauth.refresh_access_token(token_info['refresh_token'])
 
     return token_info
 
@@ -132,6 +138,8 @@ def create_spotify_oauth():
         redirect_uri =  url_for("spotifyRedirect", _external = True),
         scope= 'user-read-private'
     )
+
+
 
 @app.get('/post/delete/<int:post_id>')
 def delete_post(post_id):
@@ -153,7 +161,6 @@ def edit_post(post_id):
         return redirect('/')
 
     return render_template('edit_post.html', post=post, post_id=post_id)
-
-	
+ 
 if __name__ == '__main__':
 	app.run(debug=True)
