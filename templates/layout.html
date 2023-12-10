@@ -55,8 +55,13 @@
                 
             </form>
             <form class="form-inline my-2 my-lg-0">
+                {% if current_user.is_authenticated %}
+                    <a class="btn btn-outline-primary my-2 my-sm-0" href="{{ url_for('profile') }}">Account</a>
+                    <a class="btn btn-outline-primary my-2 my-sm-0" href="{{ url_for('logout') }}">Logout</a>
+                {% else %}
+                    <a class="btn btn-outline-primary my-2 my-sm-0" href="{{url_for('login') }}">Login/Sign up</a>
+                {% endif %}
                 
-                <a class="btn btn-outline-primary my-2 my-sm-0" href="{{url_for('login') }}">Login/Sign up</a>
             </form>
             <!-- END Search Bar -->
         </div>

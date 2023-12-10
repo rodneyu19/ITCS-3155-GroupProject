@@ -1,5 +1,14 @@
 {% extends 'layout.html' %}
 {% block body %}
+{% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            {% for category, message in messages %}
+                <div class="alert alert-{{ category }}">
+                {{ message }}
+                </div>
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
 <body>
     <div class="container-sm d-flex flex-column" style="max-width: fit-content; margin: auto;"> 
         <form method="POST" action="">
