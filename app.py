@@ -1,6 +1,9 @@
+
 from flask import Flask, render_template, request, redirect, flash, url_for, session
+
 from src.models import db, Post
 from dotenv import load_dotenv
+from forms import SearchForm
 import os
 import urllib.parse
 from forms import RegistrationForm, LoginForm
@@ -25,6 +28,7 @@ db.init_app(app)
 
 @app.get('/')
 @app.route('/home', methods=['GET']) 
+
 def index():
     all_posts = Post.query.all()
     return render_template('home.html', all_posts=all_posts)
@@ -98,3 +102,29 @@ def create_spotify_oauth():
         scope= 'user-read-private'
     )
     
+# Pass though Navbar
+@app.context_processor
+def base():
+	form = SearchForm()
+	return dict(form=form)
+
+# Search Funciton
+@app.route('/search', methods=['POST'])
+def search():
+	forms = SearchForm()
+	posts = Posts.query
+	if form.validate_on_submit():
+		# Get data from submitted form
+		post.searched = form.searched.data
+		# Query the Database
+		posts = posts.filter(Posts.body.like('%' + post.searched + '%'))
+		posts = post.order_by(Posts.title).all()
+		
+		return render_template("search.html", 
+								form = form, 
+								searched = post.searched,
+								posts = posts)
+	
+if __name__ == '__main__':
+	app.run(debug=True)
+
