@@ -123,6 +123,28 @@ def create_spotify_oauth():
         redirect_uri =  url_for("spotifyRedirect", _external = True),
         scope= 'user-read-private'
     )
+
+@app.get('/post/delete/<int:post_id>')
+def delete_post(post_id):
+    print(post_id)
+    post = Post.query.get(post_id)
+    db.session.delete(post)
+    db.session.commit()
+    return redirect('/')
+
+@app.route('/post/edit/<int:post_id>', methods=['GET', 'POST'])
+def edit_post(post_id):
+    post = Post.query.get(post_id)
+    if request.method == 'POST':
+        post.title = request.form.get('title')
+        post.body = request.form.get('body')
+        post.link = request.form.get('link')
+        db.session.commit()
+        flash('Post updated successfully', 'success')
+        return redirect('/')
+
+    return render_template('edit_post.html', post=post, post_id=post_id)
+
 	
 if __name__ == '__main__':
 	app.run(debug=True)
