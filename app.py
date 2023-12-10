@@ -1,9 +1,10 @@
 from flask import Flask, render_template, request, redirect, flash, url_for, session
-from src.models import db, Post
+from src.models import db, Post, User
 from dotenv import load_dotenv
 import os
 from forms import RegistrationForm, LoginForm, SearchForm
 from spotipy.oauth2 import SpotifyOAuth
+from flask_bcrypt import Bcrypt
 import time
 
 
@@ -47,14 +48,21 @@ def create_post():
 def register():
     form = RegistrationForm()
     if form.validate_on_submit():
+        hashedPass = Bcrypt.generate_password_hash(form.password.data)
+        user = User(username = form.username.data, password = hashedPass)
+        db.session.add(user)
+        db.session.commit()
         flash(f'Account created for {form.username.data}!', 'success')
-        return redirect(('home'))
+        return redirect(url_for('home'))
     return render_template('register.html', title='register', form=form)
 
 @app.route("/login", methods=['GET', 'POST'])
 def login():
+    session.clear()
+    session[TOKEN_INFO] = None
     form = LoginForm()
     if form.validate_on_submit():
+        
         if form.email.data == 'admin@blog.com' and form.password.data == 'password':
             flash('You have been logged in!', 'success')
             return redirect('home')
@@ -64,8 +72,6 @@ def login():
 
 @app.route("/spotifylogin")
 def loginwithSpotify():
-    session.clear()
-    session[TOKEN_INFO] = None
     authUrl = create_spotify_oauth().get_authorize_url()
     return redirect(authUrl)
 
@@ -97,11 +103,14 @@ def search():
             return render_template("search.html", form = form, searched = Post.searched, posts = posts)
         else:
             error = "Cant search nothing"
-            return render_template("search.html", form = form, searched = Post.searched, posts = posts, error=error)
+            return redirect(('home'))
     
 
 @app.get('/profile')
 def profile():
+    token = session.get(TOKEN_INFO, None)
+    if token != None:
+        flash('You have been logged in!', 'success')
     return render_template('profile.html')
 
 def get_token():
