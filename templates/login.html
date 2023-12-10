@@ -1,9 +1,8 @@
 {% extends 'layout.html' %}
 {% block body %}
 <body>
-    <a class="btn btn-outline-primary my-2 my-sm-0" href="/spotifylogin">Login with Spotify</a>
-    
-    <div class="content-section">
+    <div class="container-sm" style="max-width: fit-content; margin: auto;"> 
+        <a class="btn btn-outline-primary my-2 my-sm-0" href="/spotifylogin">Login with Spotify</a>
         <form method="POST" action="">
             {{ form.hidden_tag() }}
             <fieldset class="form-group">
