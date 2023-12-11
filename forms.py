@@ -1,6 +1,6 @@
 from flask_wtf import FlaskForm
 from wtforms import StringField, PasswordField, SubmitField, BooleanField
-from wtforms.validators import DataRequired, Length, EqualTo, ValidationError
+from wtforms.validators import DataRequired, Length, EqualTo, ValidationError, Optional
 from src.models import Users
 
 class RegistrationForm(FlaskForm):
@@ -23,8 +23,10 @@ class EditProfileForm(FlaskForm):
     username = StringField('Username', validators=[DataRequired(), Length(min=2, max =16)])
     firstname = StringField('Firstname', validators=[DataRequired(), Length(min=2, max =16)])
     lastname = StringField('Lastname', validators=[DataRequired(), Length(min=2, max =16)])
-    password = PasswordField('Password', validators=[DataRequired(),Length(min=5)])
-    confirm_password = PasswordField('Confirm Password',validators=[DataRequired(), EqualTo('password')])
+    password = PasswordField(validators=[Optional(), Length(min=5)])
+    # if(password is not None):
+    #     password = PasswordField(validators=[Optional(), Length(min=5)])
+    confirm_password = PasswordField('Confirm Password',validators=[EqualTo('password')])
     save = SubmitField('Save')
     def validate_username(self, usernames):
         user = Users.query.filter_by(username=usernames.data).first()
