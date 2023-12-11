@@ -143,7 +143,6 @@ def spotifyRedirect():
         newUser = Users(username = userId, password = hashedPass)
         db.session.add(newUser)
         db.session.commit()
-        login_user(existUser, True)
         current_user.username = userId
         flash(f'Account {userId}! CHANGE YOUR PASSWORD NOW', 'danger')
         return redirect(('profile'))
