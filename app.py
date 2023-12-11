@@ -4,6 +4,7 @@ from dotenv import load_dotenv
 import os
 from forms import RegistrationForm, LoginForm, SearchForm, EditProfileForm
 from spotipy.oauth2 import SpotifyOAuth
+import spotipy
 from flask_bcrypt import Bcrypt
 from flask_login import LoginManager, login_user, current_user, logout_user, login_required
 import time
@@ -14,6 +15,7 @@ loginManager = LoginManager(app)
 bcrypt = Bcrypt(app)
 load_dotenv()
 loginManager.login_view = 'login'
+
 
 
 SECRET_KEY = os.urandom(32)
@@ -102,8 +104,6 @@ def profile():
         form.firstname.data = current_user.firstname
         form.lastname.data = current_user.lastname
     token = session.get(TOKEN_INFO, None)
-    if token != None:
-        flash('You have been logged in!', 'success')
     return render_template('profile.html', title='profile', form=form)
 
 
@@ -122,7 +122,31 @@ def spotifyRedirect():
     session.clear()
     code = request.args.get('code')
     session[TOKEN_INFO] =  create_spotify_oauth().get_access_token(code)
-    return redirect(url_for('profile',_external=True))
+    try:
+        token_info = get_token()
+    except:
+        flash('not logged in', 'danger')
+        redirect(url_for('login'))
+    sp = spotipy.Spotify(auth=token_info['access_token'])
+    userId = sp.me()['id']
+    
+    existUser = Users.query.filter_by(username=userId).first()
+    if(existUser):
+        login_user(existUser, True)
+        current_user.username = userId
+        next_page = request.args.get('next')
+        flash('You have been logged in!', 'success')
+        return redirect(next_page) if next_page else redirect(('profile'))
+    else:
+        hashedPass = bcrypt.generate_password_hash("temp").decode('utf8')
+        newUser = Users(username = userId, password = hashedPass)
+        db.session.add(newUser)
+        db.session.commit()
+        login_user(existUser, True)
+        current_user.username = userId
+        flash(f'Account {userId}! CHANGE YOUR PASSWORD NOW', 'danger')
+        return redirect(('profile'))
+    # return redirect(url_for('profile',_external=True))
 
 # Pass though Navbar
 @app.context_processor
