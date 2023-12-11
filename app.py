@@ -91,9 +91,10 @@ def login():
 def profile():
     form = EditProfileForm()
     if form.validate_on_submit():
-        hashedPass = bcrypt.generate_password_hash(form.confirm_password.data).decode('utf8')
+        if(form.password.data != ''):
+            hashedPass = bcrypt.generate_password_hash(form.confirm_password.data).decode('utf8')
+            current_user.password = hashedPass
         current_user.username = form.username.data
-        current_user.password = hashedPass
         current_user.firstname = form.firstname.data
         current_user.lastname = form.lastname.data
         db.session.commit()
