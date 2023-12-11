@@ -48,22 +48,24 @@
             </ul>
 
 			<!-- Search Bar -->
-            <form method="POST" action="{{url_for('search')}}" class="form-inline">
-            	{{ form.hidden_tag() }}
-                <input class="form-control mr-sm-2" type="search" placeholder="Search" aria-label="Search", name="searched">
-                <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Search</button>
-                
-            </form>
-            <form class="form-inline my-2 my-lg-0">
-                {% if current_user.is_authenticated %}
-                    <a class="btn btn-outline-primary my-2 my-sm-0" href="{{ url_for('profile') }}">Account</a>
-                    <a class="btn btn-outline-primary my-2 my-sm-0" href="{{ url_for('logout') }}">Logout</a>
-                {% else %}
-                    <a class="btn btn-outline-primary my-2 my-sm-0" href="{{url_for('login') }}">Login/Sign up</a>
-                {% endif %}
-                
-            </form>
-            <!-- END Search Bar -->
+            <div class="form-inline my-2 my-lg-0" style="gap: 10px;">
+                <form method="POST" action="{{url_for('search')}}" class="form-inline">
+                    {{ form.hidden_tag() }}
+                    <input class="form-control mr-sm-2" type="search" placeholder="Search" aria-label="Search", name="searched">
+                    <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Search</button>
+                </form>
+                <!-- END Search Bar -->
+                <form >
+                    {% if current_user.is_authenticated %}
+                        <a class="btn btn-outline-primary my-2 my-sm-0" href="{{ url_for('profile') }}">Account</a>
+                        <a class="btn btn-outline-primary my-2 my-sm-0" href="{{ url_for('logout') }}">Logout</a>
+                    {% else %}
+                        <a class="btn btn-outline-primary my-2 my-sm-0" href="{{url_for('login') }}">Login/Sign up</a>
+                    {% endif %}
+                    
+                </form>
+            </div>
+            
         </div>
     </nav>
     {% block body %}{% endblock %}
