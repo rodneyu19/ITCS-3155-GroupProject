@@ -16,30 +16,30 @@
     <div class="my-4"></div>
     <div class="container">
 		<!-- Sidebar Snippet-->
-		<div class="col-md-4 float-right" style="position: relative; right: -330px">
+		<div class="col-md-5 float-right" style="position: relative; right: -330px">
 			<div class="content-section">
 				<h3>Latest Post</h3>
-					<ul class="list-group">
-						<li class="list-group-item list-group-item-light">
-							{% if latest_post %}
-							<div class="card" style="width: 18rem;">
-								<div class="card-body">
-									<h5 class="card-title">{{ latest_post.title }}</h5>
-						            <p class="card-text">{{ latest_post.body }}</p>
-								</div>
-							{% else %}
-								<p>No posts available.</p>
-							{% endif %}
+				<ul class="list-group">
+					<li class="list-group-item list-group-item-light">
+						{% if latest_post %}
+						<div class="card" style="width: 18rem;">
+							<div class="card-body">
+								<h5 class="card-title">{{ latest_post.title }}</h5>
+					            <p class="card-text">{{ latest_post.body }}</p>
 							</div>
-						</li>
-						<li class="list-group-item list-group-item-light">Announcements</li>
-						<li class="list-group-item list-group-item-light">Calendars</li>
-						<li class="list-group-item list-group-item-light">etc</li>
-					</ul>
-					</p>
+						{% else %}
+							<p>No posts available.</p>
+						{% endif %}
+						</div>
+					</li>
+					<li class="list-group-item list-group-item-light">Announcements</li>
+					<li class="list-group-item list-group-item-light">Calendars</li>
+					<li class="list-group-item list-group-item-light">etc</li>
+				</ul>
 			</div>
 		</div>
 		<!-- END Sidebar snippet-->	
+		
             {% for post in all_posts %}
             <div class="card" style="width: 60rem;">
                 <h5 class="card-header">
