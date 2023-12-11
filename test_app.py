@@ -2,61 +2,75 @@ import unittest
 from flask import Flask, url_for
 from src.models import db, Post, Users
 
+def create_app(testing=True):
+	app = Flask(__name__)
+
+	# Set the testing config
+	app.config['TESTING'] = testing
+	app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///:memory:'
+
+	# Initialize the test database
+	with app.app_context():
+		db.init_app(app)
+		db.create_all()
+
+	return app
+
 class AppTesting(unittest.TestCase):
 	
-	ef setUp(self):
-        # Create a test app
-        self.app = create_app(testing=True)
-        self.app_context = self.app.app_context()
-        self.app_context.push()
+	def setUp(self):
+		# Create a test app
+		self.app = create_app(testing=True)
+		self.app_context = self.app.app_context()
+		self.app_context.push()
 
-        # Create a test client
-        self.client = self.app.test_client()
+		# Create a test client
+		self.client = self.app.test_client()
 
-        # Create the test database schema
-        with self.app.app_context():
-            db.create_all()
+		# Create the test database schema
+		with self.app.app_context():
+			db.create_all()
 
 	def tearDown(self):
-        # Remove the test database
-        with self.app.app_context():
-            db.session.remove()
-            db.drop_all()
+		# Remove the test database
+		with self.app.app_context():
+			db.session.remove()
+			db.drop_all()
 
-        self.app_context.pop()
+		self.app_context.pop()
 
 	# Test the index route
-    def test_index_route(self):
-        response = self.app.get('/')
-        self.assertEqual(response.status_code, 200)
-        self.assertIn(b'Welcome to the Home Page', response.data)
+	def test_index_route(self):
+		response = self.client.get('/')
+		self.assertEqual(response.status_code, 200)
+		self.assertIn(b'Welcome to the Home Page', response.data)
         
 	# Test home route
 	def test_home_route(self):
-		response = self.app.get('/home')
+		response = self.client.get('/home')
 		self.assertEqual(response.status_code, 200)
 		self.assertIn(b'Welcome to the Home Page', response.data)
 
 	# Test create post route
 	def test_create_post_route(self):
-		response = self.app.get('/post/new')
+		response = self.client.get('/post/new')
 		self.assertEqual(response.status_code, 200)
 		self.assertIn(b'Create Post', response.data)
 
-		response = self.app.post('/post/new', data={'title': 'Test Title', 'body': 'Test Body', 'link': 'Test Link'})
-		self.assertEqual(response.status_code, 302) 
+		response = self.client.post('/post/new', data={'title': 'Test Title', 'body': 'Test Body', 'link': 'Test Link'})
+		self.assertEqual(response.status_code, 302)
 
 	# Test register()
-    def test_register_route(self):
-        response = self.app.get('/register')
-        self.assertEqual(response.status_code, 200)
-        self.assertIn(b'Register', response.data)
+	def test_register_route(self):
+		response = self.client.get('/register')
+		self.assertEqual(response.status_code, 200)
+		self.assertIn(b'Register', response.data)
 
 	# Test the login()
-    def test_login_route(self):
-        response = self.app.get('/login')
-        self.assertEqual(response.status_code, 200)
-        self.assertIn(b'Login', response.data)
+	def test_login_route(self):
+		response = self.client.get('/login')
+		self.assertEqual(response.status_code, 200)
+		self.assertIn(b'Login', response.data)
 
 	# Test search()
 	def test_search_route(self):
