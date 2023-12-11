@@ -1,5 +1,5 @@
 from flask import Flask, render_template, request, redirect, flash, url_for, session
-from src.models import db, Post, Users
+from src.models import db, Post, Users, Comment
 from dotenv import load_dotenv
 import os
 from forms import RegistrationForm, LoginForm, SearchForm, EditProfileForm
@@ -212,6 +212,30 @@ def edit_post(post_id):
         return redirect('/')
 
     return render_template('edit_post.html', post=post, post_id=post_id)
+
+@app.route('/post/<int:post_id>/comment', methods=['POST'])
+@login_required
+def add_comment(post_id):
+    post = Post.query.get_or_404(post_id)
+
+    comment_text = request.form.get('comment')
+
+    if not comment_text:
+        flash('Comment cannot be empty', 'error')
+        return redirect(url_for('get_single_post', post_id=post_id))
+
+    new_comment = Comment(comment=comment_text, id=current_user.id, post_id=post_id)
+    db.session.add(new_comment)
+    db.session.commit()
+
+    flash('Comment added successfully', 'success')
+    return redirect(url_for('get_single_post', post_id=post_id))
+
+@app.get('/post/<int:post_id>')
+def get_single_post(post_id):
+    single_post = Post.query.get_or_404(post_id)
+    comments = Comment.query.filter_by(post_id=post_id).all()
+    return render_template('single_post.html', post=single_post, comments=comments)
  
 if __name__ == '__main__':
 	app.run(debug=True)

@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Single Post</title>
+</head>
+<body>
+    <h1>{{ post.title }}</h1>
+    <p>{{ post.body }}</p>
+    <p>Link: <a href="{{ post.link }}">{{ post.link }}</a></p>
+
+    <hr>
+
+    <h2>Comments</h2>
+    <ul>
+        {% for comment in comments %}
+            <li>{{ comment.comment }}</li>
+        {% endfor %}
+    </ul>
+
+    <hr>
+
+    <form action="{{ url_for('add_comment', post_id=post.post_id) }}" method="POST">
+        <textarea name="comment" placeholder="Add your comment"></textarea>
+        <button type="submit">Add Comment</button>
+    </form>
+
+    <a href="{{ url_for('index') }}">Return to Index</a>
+</body>
+</html>

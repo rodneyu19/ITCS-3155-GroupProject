@@ -20,4 +20,10 @@ class Users(db.Model, UserMixin):
     password = db.Column(db.String(255), nullable=False)
     firstname = db.Column(db.String(16))
     lastname = db.Column(db.String(16))
+
+class Comment(db.Model):
+    __tablename__ = 'comments'
+    comment_id = db.Column(db.Integer, primary_key=True)
+    comment_text = db.Column(db.Text, nullable=False)
+    post_id = db.Column(db.Integer, db.ForeignKey('post.post_id'), nullable=False)
  
