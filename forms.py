@@ -20,9 +20,9 @@ class LoginForm(FlaskForm):
 	submit = SubmitField('Login')
 	
 class EditProfileForm(FlaskForm):
-    username = StringField('Username', validators=[DataRequired(), Length(min=2, max =16)])
-    firstname = StringField('Firstname', validators=[DataRequired(), Length(min=2, max =16)])
-    lastname = StringField('Lastname', validators=[DataRequired(), Length(min=2, max =16)])
+    username = StringField('Username', validators=[Optional(), Length(min=2, max =16)])
+    firstname = StringField('Firstname', validators=[Optional(), Length(min=1, max =16)])
+    lastname = StringField('Lastname', validators=[Optional(), Length(min=1, max =16)])
     password = PasswordField(validators=[Optional(), Length(min=5)])
     # if(password is not None):
     #     password = PasswordField(validators=[Optional(), Length(min=5)])
