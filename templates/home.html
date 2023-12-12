@@ -20,7 +20,9 @@
             {% for post in all_posts %}
                 <div class="card" style="width: 57rem;">
                     <h5 class="card-header">
-                        {{ post.title }} 
+                        <a href="{{ url_for('get_single_post', post_id=post.post_id) }}">
+                            {{ post.title }}
+                        </a>
                         <div class="btn-group float-right">
                             <button class="btn btn-light btn-sm dropdown-toggle" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-wrench" viewBox="0 0 16 16">
