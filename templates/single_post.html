@@ -1,29 +1,30 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Single Post</title>
+    <title>Single Post - Spotify Style</title>
 </head>
-<body>
-    <h1>{{ post.title }}</h1>
-    <p>{{ post.body }}</p>
-    <p>Link: <a href="{{ post.link }}">{{ post.link }}</a></p>
+<body style="font-family: 'Arial', sans-serif; background-color: #f4f4f4; color: #333; margin: 20px;">
 
-    <hr>
+    <h1 style="color: #1DB954;">{{ post.title }}</h1>
+    <p>{{ post.body }}</p>
+    <p>Link: <a href="{{ post.link }}" style="color: #1DB954; text-decoration: none;">{{ post.link }}</a></p>
+
+    <hr style="border-color: #888;">
 
     <h2>Comments</h2>
-    <ul>
+    <ul style="list-style-type: none; padding: 0;">
         {% for comment in comments %}
-            <li>{{ comment.comment }}</li>
+            <li style="margin-bottom: 10px; padding: 8px; background-color: #fff; border: 1px solid #ccc; border-radius: 5px;">{{ comment.comment }}</li>
         {% endfor %}
     </ul>
 
-    <hr>
+    <hr style="border-color: #888;">
 
     <form action="{{ url_for('add_comment', post_id=post.post_id) }}" method="POST">
-        <textarea name="comment" placeholder="Add your comment"></textarea>
-        <button type="submit">Add Comment</button>
+        <textarea name="comment" placeholder="Add your comment" style="width: 100%; padding: 10px; margin-bottom: 10px; border-radius: 5px; border: 1px solid #ccc;"></textarea>
+        <button type="submit" style="padding: 10px 20px; background-color: #1DB954; color: #fff; border: none; border-radius: 5px; cursor: pointer;">Add Comment</button>
     </form>
 
-    <a href="{{ url_for('index') }}">Return to Index</a>
+    <a href="{{ url_for('index') }}" style="color: #1DB954; text-decoration: none;">Return to Index</a>
 </body>
 </html>
