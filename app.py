@@ -44,7 +44,9 @@ def create_post_form():
 
 @app.post('/post/new')
 def create_post():
-    
+    if not current_user.is_authenticated:
+        flash('You need to log in to create a new post', 'danger')
+        return redirect(url_for('login'))
     title = request.form.get('title')
     body = request.form.get('body')
     link = request.form.get('link')
