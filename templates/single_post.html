@@ -8,6 +8,9 @@
     <p>{{ post.body }}</p>
     <p>Link: <a href="{{ post.link }}">{{ post.link }}</a></p>
 
+    {% if embed %}
+    <iframe style="border-radius:12px" src="https://open.spotify.com/embed/track/{{embed}}?utm_source=generator" width="50%" height="352" frameBorder="0" allowfullscreen="" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="lazy"></iframe>
+    {% endif %}
     <hr>
 
     <h2>Comments</h2>
