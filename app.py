@@ -7,6 +7,7 @@ from spotipy.oauth2 import SpotifyOAuth
 import spotipy
 from flask_bcrypt import Bcrypt
 from flask_login import LoginManager, login_user, current_user, logout_user, login_required
+from sqlalchemy import desc
 import time
 
 
@@ -15,7 +16,6 @@ loginManager = LoginManager(app)
 bcrypt = Bcrypt(app)
 load_dotenv()
 loginManager.login_view = 'login'
-
 
 
 SECRET_KEY = os.urandom(32)
@@ -34,7 +34,8 @@ db.init_app(app)
 @app.route('/home', methods=['GET']) 
 def index():
     all_posts = Post.query.all()
-    return render_template('home.html', all_posts=all_posts)
+    latest_post = Post.query.order_by(desc(Post.post_id)).first()
+    return render_template('home.html', all_posts=all_posts, latest_post=latest_post)
 
 @app.get('/post/new')
 def create_post_form():
@@ -49,6 +50,10 @@ def create_post():
     db.session.add(new_post)
     db.session.commit()
     return redirect('/')
+    
+@app.route('/about')
+def about():
+    return render_template('about.html', title='About Us')
 
 @app.route("/register", methods=['GET', 'POST'])
 def register():
