@@ -37,8 +37,9 @@
                     </h5>
                     <div class="card-body">
                         <p class="card-subtitle mb-2 text-muted">by Username</p>
-                        {% if embeds[loop.index0] is not none %}
-                        <iframe style="border-radius:12px" src="https://open.spotify.com/embed/track/{{embeds[loop.index0]}}?utm_source=generator" width="100%" height="100" frameBorder="0" allowfullscreen="" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="lazy"></iframe>
+                        <!--Filter so Spotify isn't embedded when a user leaves the link section blank, or accidently puts a few char-->
+                        {% if embeds[loop.index0]|length > 15 %}
+                            <iframe style="border-radius:12px" src="https://open.spotify.com/embed/track/{{embeds[loop.index0]}}?utm_source=generator" width="100%" height="100" frameBorder="0" allowfullscreen="" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="lazy"></iframe>
                         {% endif %}
                         <p class="card-text">{{ post.body }}</p>
                         <a href="#" class="btn btn-light">
