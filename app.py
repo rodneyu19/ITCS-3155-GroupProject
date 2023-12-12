@@ -238,6 +238,5 @@ def get_single_post(post_id):
     embed_parts = single_post.link.split('/')
     embed = embed_parts[-1]
     return render_template('single_post.html', post=single_post, comments=comments, embed=embed)
-
 if __name__ == '__main__':
 	app.run(debug=True)
