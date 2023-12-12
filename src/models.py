@@ -24,6 +24,6 @@ class Users(db.Model, UserMixin):
 class Comment(db.Model):
     __tablename__ = 'comments'
     comment_id = db.Column(db.Integer, primary_key=True)
-    comment_text = db.Column(db.Text, nullable=False)
+    comment = db.Column(db.Text, nullable=False)
     post_id = db.Column(db.Integer, db.ForeignKey('post.post_id'), nullable=False)
  
