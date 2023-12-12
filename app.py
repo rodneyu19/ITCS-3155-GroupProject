@@ -50,6 +50,10 @@ def create_post():
     db.session.add(new_post)
     db.session.commit()
     return redirect('/')
+    
+@app.route('/about')
+def about():
+    return render_template('about.html', title='About Us')
 
 @app.route("/register", methods=['GET', 'POST'])
 def register():
