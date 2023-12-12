@@ -44,12 +44,14 @@ def create_post_form():
 
 @app.post('/post/new')
 def create_post():
+    
     title = request.form.get('title')
     body = request.form.get('body')
     link = request.form.get('link')
-    new_post = Post(title=title, body=body, link=link)
+    new_post = Post(title=title, body=body, link=link, username=current_user.username)
     db.session.add(new_post)
     db.session.commit()
+    
     return redirect('/')
     
 @app.route('/about')
