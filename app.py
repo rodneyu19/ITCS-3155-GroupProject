@@ -35,7 +35,8 @@ db.init_app(app)
 def index():
     all_posts = Post.query.all()
     latest_post = Post.query.order_by(desc(Post.post_id)).first()
-    return render_template('home.html', all_posts=all_posts, latest_post=latest_post)
+    embeds = [post.link.split('/')[-1] for post in all_posts]
+    return render_template('home.html', all_posts=all_posts, latest_post=latest_post, embeds=embeds)
 
 @app.get('/post/new')
 def create_post_form():
@@ -243,5 +244,6 @@ def get_single_post(post_id):
     embed_parts = single_post.link.split('/')
     embed = embed_parts[-1]
     return render_template('single_post.html', post=single_post, comments=comments, embed=embed)
+
 if __name__ == '__main__':
 	app.run(debug=True)
