@@ -1,23 +1,32 @@
 {% extends 'layout.html' %}
 {% block body %}
+{% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            {% for category, message in messages %}
+                <div class="alert alert-{{ category }}">
+                {{ message }}
+                </div>
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
 <body>
-    <div class="container-sm" style="max-width: fit-content; margin: auto;"> 
-        <a class="btn btn-outline-primary my-2 my-sm-0" href="/spotifylogin">Login with Spotify</a>
+    <div class="container-sm d-flex flex-column" style="max-width: fit-content; margin: auto;"> 
         <form method="POST" action="">
             {{ form.hidden_tag() }}
             <fieldset class="form-group">
-                <legend class="border-bottom mb-4">Log In</legend>
+                <legend class="border-bottom mb-4" style="text-align: center;">Log In</legend>
+
                 <div class="form-group">
-                    {{ form.email.label(class="form-control-label") }}
-                    {% if form.email.errors %}
-                        {{ form.email(class="form-control form-control-lg is-invalid") }}
+                    {{ form.username.label(class="form-control-label") }}
+                    {% if form.username.errors %}
+                        {{ form.username(class="form-control form-control-lg is-invalid") }}
                         <div class="invalid-feedback">
-                            {% for error in form.email.errors %}
+                            {% for error in form.username.errors %}
                                 <span>{{ error }}</span>
                             {% endfor %}
                         </div>
                     {% else %}
-                        {{ form.email(class="form-control form-control-lg") }}
+                        {{ form.username(class="form-control form-control-lg") }}
                     {% endif %}
                 </div>
                 <div class="form-group">
@@ -38,18 +47,19 @@
                     {{ form.remember.label(class="form-check-label") }}
                 </div>
             </fieldset>
-            <div class="form-group">
-                {{ form.submit(class="btn btn-outline-info") }}
-            </div>
-            <small class="text-muted ml-2">
-                <a href="#">Forgot Password?</a>
-            </small>
+            <div class="container-sm d-flex flex-column" style="gap: 1rem; margin: -5px 0px 5px 0px;">
+				{{ form.submit(class="btn btn-outline-info") }}
+				<div class="btn btn-outline-primary my-3 my-sm-0" style="border-color: #18d860 !important;background-color: #18d860; border-color: #18d860 !important;">
+					<img src="https://upload.wikimedia.org/wikipedia/commons/thumb/1/19/Spotify_logo_without_text.svg/1024px-Spotify_logo_without_text.svg.png" style="margin: -2px 5px 0px 0px; filter: brightness(0);" alt="spotify logo" width="20px" height="20px"><a href="{{ url_for('spotifylogin') }}" style="color: #ffffff;">Register with Spotify</a>
+				</div>
+			</div>
         </form>
-    </div>
-    <div class="border-top pt-3">
-        <small class="text-muted">
-            Need An Account? <a class="ml-2" href="{{ url_for('register') }}">Sign Up Now</a>
-        </small>
+        
+        <div class="border-top pt-3 ">
+            <small class="text-muted">
+                Need An Account? <a class="ml-2" href="{{ url_for('register') }}">Sign Up Now</a>
+            </small>
+        </div>
     </div>
 </body>
 {% endblock %}

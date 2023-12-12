@@ -1,15 +1,22 @@
 from flask import Flask, render_template, request, redirect, flash, url_for, session
-from src.models import db, Post
+from src.models import db, Post, Users, Comment
 from dotenv import load_dotenv
 import os
-from forms import RegistrationForm, LoginForm, SearchForm
+from forms import RegistrationForm, LoginForm, SearchForm, EditProfileForm
 from spotipy.oauth2 import SpotifyOAuth
+import spotipy
+from flask_bcrypt import Bcrypt
+from flask_login import LoginManager, login_user, current_user, logout_user, login_required
+from sqlalchemy import desc
 import time
 
 
 app = Flask(__name__)
-
+loginManager = LoginManager(app)
+bcrypt = Bcrypt(app)
 load_dotenv()
+loginManager.login_view = 'login'
+
 
 SECRET_KEY = os.urandom(32)
 app.config['SECRET_KEY'] = SECRET_KEY
@@ -27,7 +34,9 @@ db.init_app(app)
 @app.route('/home', methods=['GET']) 
 def index():
     all_posts = Post.query.all()
-    return render_template('home.html', all_posts=all_posts)
+    latest_post = Post.query.order_by(desc(Post.post_id)).first()
+    embeds = [post.link.split('/')[-1] for post in all_posts]
+    return render_template('home.html', all_posts=all_posts, latest_post=latest_post, embeds=embeds)
 
 @app.get('/post/new')
 def create_post_form():
@@ -42,30 +51,76 @@ def create_post():
     db.session.add(new_post)
     db.session.commit()
     return redirect('/')
+    
+@app.route('/about')
+def about():
+    return render_template('about.html', title='About Us')
 
 @app.route("/register", methods=['GET', 'POST'])
 def register():
+    if current_user.is_authenticated:
+        flash('You\'re already logged in!', 'success')
+        return redirect('/')
     form = RegistrationForm()
     if form.validate_on_submit():
+        hashedPass = bcrypt.generate_password_hash(form.confirm_password.data).decode('utf8')
+        newUser = Users(username = form.username.data, password = hashedPass)
+        db.session.add(newUser)
+        db.session.commit()
         flash(f'Account created for {form.username.data}!', 'success')
-        return redirect(('home'))
+        return redirect(url_for('profile'))
     return render_template('register.html', title='register', form=form)
+
+@loginManager.user_loader
+def load_user(user_id):
+    return Users.query.get(int(user_id))
 
 @app.route("/login", methods=['GET', 'POST'])
 def login():
+    if(current_user.is_authenticated):
+        flash('You\'re already logged in!', 'success')
+        return redirect('/')
     form = LoginForm()
     if form.validate_on_submit():
-        if form.email.data == 'admin@blog.com' and form.password.data == 'password':
+        user = Users.query.filter_by(username=form.username.data).first()
+        if user and bcrypt.check_password_hash(user.password, form.password.data):
+            login_user(user, remember=form.remember.data)
             flash('You have been logged in!', 'success')
-            return redirect('home')
+            next_page = request.args.get('next')
+            return redirect(next_page) if next_page else redirect(('home'))
         else:
-            flash('Login Unsuccessful. Please check username and password', 'danger')
+            flash('Invalid username or password', 'danger')
     return render_template('login.html', title='login', form=form)
 
+@app.route('/profile', methods=['GET', 'POST'])
+@login_required
+def profile():
+    form = EditProfileForm()
+    if form.validate_on_submit():
+        if(form.password.data != ''):
+            hashedPass = bcrypt.generate_password_hash(form.confirm_password.data).decode('utf8')
+            current_user.password = hashedPass
+        current_user.username = form.username.data
+        current_user.firstname = form.firstname.data
+        current_user.lastname = form.lastname.data
+        db.session.commit()
+        flash(f'Account updated!', 'success')
+        return redirect(url_for('profile'))
+    elif request.method == 'GET':
+        form.username.data = current_user.username
+        form.firstname.data = current_user.firstname
+        form.lastname.data = current_user.lastname
+    token = session.get(TOKEN_INFO, None)
+    return render_template('profile.html', title='profile', form=form)
+
+
+@app.route("/logout")
+def logout():
+    logout_user()
+    return redirect('login')
+
 @app.route("/spotifylogin")
-def loginwithSpotify():
-    session.clear()
-    session[TOKEN_INFO] = None
+def spotifylogin():
     authUrl = create_spotify_oauth().get_authorize_url()
     return redirect(authUrl)
 
@@ -74,7 +129,30 @@ def spotifyRedirect():
     session.clear()
     code = request.args.get('code')
     session[TOKEN_INFO] =  create_spotify_oauth().get_access_token(code)
-    return redirect(url_for('profile',_external=True))
+    try:
+        token_info = get_token()
+    except:
+        flash('not logged in', 'danger')
+        redirect(url_for('login'))
+    sp = spotipy.Spotify(auth=token_info['access_token'])
+    userId = sp.me()['id']
+    
+    existUser = Users.query.filter_by(username=userId).first()
+    if(existUser):
+        login_user(existUser, True)
+        current_user.username = userId
+        next_page = request.args.get('next')
+        flash('You have been logged in!', 'success')
+        return redirect(next_page) if next_page else redirect(('profile'))
+    else:
+        hashedPass = bcrypt.generate_password_hash("temp").decode('utf8')
+        newUser = Users(username = userId, password = hashedPass)
+        db.session.add(newUser)
+        db.session.commit()
+        current_user.username = userId
+        flash(f'Account {userId}! CHANGE YOUR PASSWORD NOW', 'danger')
+        return redirect(('profile'))
+    # return redirect(url_for('profile',_external=True))
 
 # Pass though Navbar
 @app.context_processor
@@ -97,13 +175,8 @@ def search():
             return render_template("search.html", form = form, searched = Post.searched, posts = posts)
         else:
             error = "Cant search nothing"
-            return render_template("search.html", form = form, searched = Post.searched, posts = posts, error=error)
+            return redirect(('home'))
     
-
-@app.get('/profile')
-def profile():
-    return render_template('profile.html')
-
 def get_token():
     token_info = session.get(TOKEN_INFO, None)
     if not token_info:
@@ -111,8 +184,9 @@ def get_token():
     now = int(time.time())
     is_expired = token_info['expires_at'] - now < 60
     if(is_expired):
-        spotify_oauth = create_spotify_oauth()
-        token_info = spotify_oauth.refresh_access_token(token_info['refresh_token'])
+        redirect(url_for('login', _external=True))
+        # spotify_oauth = create_spotify_oauth()
+        # token_info = spotify_oauth.refresh_access_token(token_info['refresh_token'])
 
     return token_info
 
@@ -123,6 +197,53 @@ def create_spotify_oauth():
         redirect_uri =  url_for("spotifyRedirect", _external = True),
         scope= 'user-read-private'
     )
-	
+
+@app.get('/post/delete/<int:post_id>')
+def delete_post(post_id):
+    print(post_id)
+    post = Post.query.get(post_id)
+    db.session.delete(post)
+    db.session.commit()
+    return redirect('/')
+
+@app.route('/post/edit/<int:post_id>', methods=['GET', 'POST'])
+def edit_post(post_id):
+    post = Post.query.get(post_id)
+    if request.method == 'POST':
+        post.title = request.form.get('title')
+        post.body = request.form.get('body')
+        post.link = request.form.get('link')
+        db.session.commit()
+        flash('Post updated successfully', 'success')
+        return redirect('/')
+
+    return render_template('edit_post.html', post=post, post_id=post_id)
+
+@app.route('/post/<int:post_id>/comment', methods=['POST'])
+@login_required
+def add_comment(post_id):
+    post = Post.query.get_or_404(post_id)
+
+    comment_text = request.form.get('comment')
+
+    if not comment_text:
+        flash('Comment cannot be empty', 'error')
+        return redirect(url_for('get_single_post', post_id=post_id))
+
+    new_comment = Comment(comment=comment_text, id=current_user.id, post_id=post_id)
+    db.session.add(new_comment)
+    db.session.commit()
+
+    flash('Comment added successfully', 'success')
+    return redirect(url_for('get_single_post', post_id=post_id))
+
+@app.get('/post/<int:post_id>')
+def get_single_post(post_id):
+    single_post = Post.query.get_or_404(post_id)
+    comments = Comment.query.filter_by(post_id=post_id).all()
+    embed_parts = single_post.link.split('/')
+    embed = embed_parts[-1]
+    return render_template('single_post.html', post=single_post, comments=comments, embed=embed)
+
 if __name__ == '__main__':
 	app.run(debug=True)
