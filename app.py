@@ -238,12 +238,13 @@ def add_comment(post_id):
         flash('Comment cannot be empty', 'error')
         return redirect(url_for('get_single_post', post_id=post_id))
 
-    new_comment = Comment(comment=comment_text, id=current_user.id, post_id=post_id)
+    new_comment = Comment(comment=comment_text, user_id=current_user.id, post_id=post_id)
     db.session.add(new_comment)
     db.session.commit()
 
     flash('Comment added successfully', 'success')
     return redirect(url_for('get_single_post', post_id=post_id))
+
 
 @app.get('/post/<int:post_id>')
 def get_single_post(post_id):
