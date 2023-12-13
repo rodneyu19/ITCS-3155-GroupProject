@@ -116,7 +116,7 @@ def profile():
         if(user is not None):
             if (user.id == current_user.id):
                 if(form.password.data != ''):
-                    hashedPass = bcrypt.generatse_password_hash(form.confirm_password.data).decode('utf8')
+                    hashedPass = bcrypt.generate_password_hash(form.confirm_password.data).decode('utf8')
                     current_user.password = hashedPass
                 current_user.firstname = form.firstname.data
                 current_user.lastname = form.lastname.data
@@ -128,7 +128,7 @@ def profile():
                 return redirect(url_for('profile'))
         else:
             if(form.password.data != ''):
-                hashedPass = bcrypt.generatse_password_hash(form.confirm_password.data).decode('utf8')
+                hashedPass = bcrypt.generate_password_hash(form.confirm_password.data).decode('utf8')
                 current_user.password = hashedPass
             current_user.username = form.username.data
             current_user.firstname = form.firstname.data
