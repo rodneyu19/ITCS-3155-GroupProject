@@ -25,10 +25,12 @@
                                 {% endfor %}
                             </div>
                         {% else %}
+                            
                             {{ form.username(class="form-control form-control-lg") }} 
                         {% endif %}
                         {% if current_user.spotify_id is not none %}
-                            {{form.spotifyid (disabled=True, class="form-control form-control-lg")}}
+                            <label class="form-control-label" for="spotifyid" style="margin-top: 10px;">Spotify Username</label>
+                            {{form.spotifyid (disabled=True, class="form-control form-control-lg", style="margin-top: -10px")}}
                         {% endif %}
                     </div>
                     <div class="container-sm d-flex flex-row" style="gap: 20px; align-items: baseline;">    

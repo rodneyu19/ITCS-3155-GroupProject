@@ -117,7 +117,7 @@ def profile():
     elif request.method == 'GET':
         # if(current_user.spotify_id is not None):
         if(current_user.spotify_id):
-            form.spotifyid.data = "(" + current_user.spotify_id + ")"
+            form.spotifyid.data = current_user.spotify_id
         form.username.data = current_user.username
         form.firstname.data = current_user.firstname
         form.lastname.data = current_user.lastname
