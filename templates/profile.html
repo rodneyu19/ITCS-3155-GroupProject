@@ -1,0 +1,91 @@
+{% extends "layout.html" %}
+{% block body %}
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            {% for category, message in messages %}
+                <div class="alert alert-{{ category }}">
+                {{ message }}
+                </div>
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
+    <body>
+        <div class="container-sm d-flex flex-column" style="max-width: fit-content;margin-top: 5rem !important; margin: auto; align-items: baseline;"> 
+            <form method="POST" action="">
+                {{ form.hidden_tag() }}
+                <fieldset class="form-group">
+                    <legend class="border-bottom mb-4" style="text-align: center;">Edit Profile</legend>
+                    <div class="form-group">
+                        {{ form.username.label(class="form-control-label") }}
+                        {% if form.username.errors %}
+                            {{ form.username(class="form-control form-control-lg is-invalid") }}
+                            <div class="invalid-feedback">
+                                {% for error in form.username.errors %}
+                                    <span>{{ error }}</span>
+                                {% endfor %}
+                            </div>
+                        {% else %}
+                            {{ form.username(class="form-control form-control-lg") }}
+                        {% endif %}
+                    </div>
+                    <div class="container-sm d-flex flex-row" style="gap: 20px; align-items: baseline;">    
+                        <div class="container-sm d-flex flex-column">                    
+                            {{ form.firstname.label(class="form-control-label") }}
+                            {% if form.firstname.errors %}
+                                {{ form.firstname(class="form-control form-control-lg is-invalid") }}
+                                <div class="invalid-feedback">
+                                    {% for error in form.firstname.errors %}
+                                        <span>{{ error }}</span>
+                                    {% endfor %}
+                                </div>
+                            {% else %}
+                                {{ form.firstname(class="form-control form-control-lg") }}
+                            {% endif %}
+                        </div>
+                        
+                        <div class="container-sm d-flex flex-column">
+                            {{ form.lastname.label(class="form-control-label") }}
+                            {% if form.lastname.errors %}
+                                {{ form.lastname(class="form-control form-control-lg is-invalid") }}
+                                <div class="invalid-feedback">
+                                    {% for error in form.lastname.errors %}
+                                        <span>{{ error }}</span>
+                                    {% endfor %}
+                                </div>
+                            {% else %}
+                                {{ form.lastname(class="form-control form-control-lg") }}
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        {{ form.password.label(class="form-control-label") }}
+                        {% if form.password.errors %}
+                            {{ form.password(class="form-control form-control-lg is-invalid") }}
+                            <div class="invalid-feedback">
+                                {% for error in form.password.errors %}
+                                    <span>{{ error }}</span>
+                                {% endfor %}
+                            </div>
+                        {% else %}
+                            {{ form.password(class="form-control form-control-lg") }}
+                        {% endif %}
+                        {{ form.confirm_password.label(class="form-control-label") }}
+					{% if form.confirm_password.errors %}
+						{{ form.confirm_password(class="form-control form-control-lg is-invalid") }}
+						<div class="invalid-feedback">
+							{% for error in form.confirm_password.errors %}
+								<span>{{ error }}</span>
+							{% endfor %}
+						</div>
+					{% else %}
+						{{ form.confirm_password(class="form-control form-control-lg") }}
+					{% endif %}
+                    </div>
+                </fieldset>
+                <div class="container-sm d-flex flex-column" style="gap: 1rem;">
+                    {{ form.save(class="btn btn-outline-info") }}
+                </div>
+            </form>
+    </body>
+{% endblock body %}

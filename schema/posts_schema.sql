@@ -1,23 +1,26 @@
 CREATE TABLE IF NOT EXISTS users (
-	user_id SERIAL PRIMARY KEY,
-	username VARCHAR(16) NOT NULL,
-	password VARCHAR(16) NOT NULL
+	id SERIAL PRIMARY KEY,
+	username VARCHAR(16) NOT NULL UNIQUE,
+	password VARCHAR(255) NOT NULL,
+	firstname VARCHAR(16),
+	lastname VARCHAR(16)
 );
 
 CREATE TABLE IF NOT EXISTS post (
 	post_id SERIAL PRIMARY KEY,
 	title VARCHAR(255) NOT NULL,
 	body TEXT NOT NULL,
-	user_id INT,
-    	link VARCHAR(255),
-	FOREIGN KEY (user_id) REFERENCES users (user_id)
+	id INT,
+    link VARCHAR(255),
+    username VARCHAR(16),
+	FOREIGN KEY (username) REFERENCES users (username)
 );
 
 CREATE TABLE IF NOT EXISTS comments (
 	comment_id SERIAL PRIMARY KEY,
 	comment TEXT NOT NULL,
-	user_id INT,
+	id INT,
 	post_id INT,
-	FOREIGN KEY (user_id) REFERENCES users (user_id),
+	FOREIGN KEY (id) REFERENCES users (id),
 	FOREIGN KEY (post_id) REFERENCES post (post_id)
 );

@@ -1,0 +1,68 @@
+{% extends "layout.html" %}
+{% block body %}
+<body>
+	<div class="container-sm d-flex flex-column justify-content-between" style="max-width: fit-content; margin: auto; gap: .5rem;">
+		<form method="POST" action="">
+			{{ form.hidden_tag() }}
+			<fieldset class="form-group">
+				<legend class="border-bottom mb-4" style="text-align: center">Register</legend>
+				<div class="form-group">
+					{{ form.username.label(class="form-control-label") }}
+
+					{% if form.username.errors %}
+						{{ form.username(class="form-control form-control-lg is-invalid") }}
+						<div class="invalid-feedback">
+							{% for error in form.username.errors %}
+								<span>{{ error }}</span>
+							{% endfor %}
+						</div>
+					{% else %}
+						{{ form.username(class="form-control form-control-lg") }}
+					{% endif %}
+				</div>
+				<div class="form-group">
+					{{ form.password.label(class="form-control-label") }}
+					{% if form.password.errors %}
+						{{ form.password(class="form-control form-control-lg is-invalid") }}
+						<div class="invalid-feedback">
+							{% for error in form.password.errors %}
+								<span>{{ error }}</span>
+							{% endfor %}
+						</div>
+					{% else %}
+						{{ form.password(class="form-control form-control-lg") }}
+					{% endif %}
+				</div>
+				<div class="form-group">
+					{{ form.confirm_password.label(class="form-control-label") }}
+					{% if form.confirm_password.errors %}
+						{{ form.confirm_password(class="form-control form-control-lg is-invalid") }}
+						<div class="invalid-feedback">
+							{% for error in form.confirm_password.errors %}
+								<span>{{ error }}</span>
+							{% endfor %}
+						</div>
+					{% else %}
+						{{ form.confirm_password(class="form-control form-control-lg") }}
+					{% endif %}
+				</div>
+			</fieldset>
+			<div class="container-sm d-flex flex-column" style="gap: 1rem;">
+				{{ form.submit(class="btn btn-outline-info") }}
+				<div class="btn btn-outline-primary my-3 my-sm-0" style="border-color: #18d860 !important;background-color: #18d860; border-color: #18d860 !important;">
+					<img src="https://upload.wikimedia.org/wikipedia/commons/thumb/1/19/Spotify_logo_without_text.svg/1024px-Spotify_logo_without_text.svg.png" style="margin: -2px 5px 0px 0px; filter: brightness(0);" alt="spotify logo" width="20px" height="20px"><a href="{{ url_for('spotifylogin') }}" style="color: #ffffff;">Register with Spotify</a>
+				</div>
+			</div>
+		</form>
+		
+
+		<div class="border-top pt-3" style="text-align: center;">
+			<small class="text-muted">
+				Already Have An Account? <a class="ml-2" href="{{ url_for('login') }}">Sign In</a>
+			</small>
+		</div>
+
+		
+	</div>
+<body>
+{% endblock body %}
