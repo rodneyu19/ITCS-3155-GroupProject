@@ -1,6 +1,10 @@
 import unittest
 from flask import Flask, url_for
 from src.models import db, Post, Users
+from flask import Flask
+from flask_login import current_user
+from app import  db
+from src.models import Users
 
 def create_app(testing=True):
 	app = Flask(__name__)
@@ -30,7 +34,7 @@ class AppTesting(unittest.TestCase):
 		# Create the test database schema
 		with self.app.app_context():
 			db.create_all()
-
+	
 	def tearDown(self):
 		# Remove the test database
 		with self.app.app_context():
@@ -83,6 +87,59 @@ class AppTesting(unittest.TestCase):
 		# have a post with ID=1 for testing
 		response = self.client.get(url_for('delete_post', post_id=1))
 		self.assertEqual(response.status_code, 302)
+	def test_register_user(self):
+        response = self.client.post('/register', data=dict(
+            username='testuser',
+            password='testpassword',
+            confirm_password='testpassword'
+        ), follow_redirects=True)
+        self.assertEqual(response.status_code, 200)
+        user = Users.query.filter_by(username='testuser').first()
+        self.assertIsNotNone(user)
+	def test_login_user(self):
+        # Assuming you have registered a test user before
+        test_user = Users(username='testuser', password='testpassword')
+        db.session.add(test_user)
+        db.session.commit()
+
+        response = self.client.post('/login', data=dict(
+            username='testuser',
+            password='testpassword'
+        ), follow_redirects=True)
+        self.assertEqual(response.status_code, 200)
+        self.assertTrue(current_user.is_authenticated)
+	def test_login_with_wrong_credentials(self):
+        response = self.client.post('/login', data=dict(
+            username='wronguser',
+            password='wrongpassword'
+        ), follow_redirects=True)
+        self.assertEqual(response.status_code, 200)
+        self.assertFalse(current_user.is_authenticated)
+	def test_edit_profile(self):
+        # Assuming you have a logged-in user
+        test_user = Users(username='testuser', password='testpassword')
+        db.session.add(test_user)
+        db.session.commit()
+
+        with self.client:
+            self.client.post('/login', data=dict(
+                username='testuser',
+                password='testpassword'
+            ), follow_redirects=True)
+
+            response = self.client.post('/profile/edit', data=dict(
+                username='newusername',
+                firstname='New',
+                lastname='User',
+                password='newpassword',
+                confirm_password='newpassword'
+            ), follow_redirects=True)
+
+            self.assertEqual(response.status_code, 200)
+            user = Users.query.filter_by(username='newusername').first()
+            self.assertIsNotNone(user)
+            self.assertEqual(user.firstname, 'New')
+            self.assertEqual(user.lastname, 'User')
 	'''
 	# Test edit_post()
 	def test_edit_post_route(self):
@@ -119,6 +176,8 @@ class AppTesting(unittest.TestCase):
 		self.assertEqual(response.status_code, 200)
 		self.assertIn(b'Your Profile', response.data)
 	'''
+ 
+	
 
 if __name__ == '__main__':
     unittest.main()

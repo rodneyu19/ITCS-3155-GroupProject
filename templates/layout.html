@@ -101,7 +101,7 @@
             <div class="form-inline my-2 my-lg-0" style="gap: 10px;">
                 <form method="POST" action="{{url_for('search')}}" class="form-inline">
                     {{ form.hidden_tag() }}
-                    <input class="form-control mr-sm-2" type="search" placeholder="Search" aria-label="Search", name="searched">
+                    <input class="form-control mr-sm-2" type="search" placeholder="Search" aria-label="Search" name="searched">
                 </form>
             <!-- END Search Bar -->
                 <form >
@@ -118,3 +118,4 @@
         </div>
     </nav>
     {% block body %}{% endblock %}
+</html>
