@@ -253,5 +253,16 @@ def get_single_post(post_id):
     embed = embed_parts[-1]
     return render_template('single_post.html', post=single_post, comments=comments, embed=embed)
 
+@app.route('/profile/delete', methods=['GET', 'POST'])
+@login_required
+def delete_profile():
+    if request.method == 'POST':
+        db.session.delete(current_user)
+        db.session.commit()
+        flash('Your account has been deleted!', 'success')
+        return redirect(url_for('logout'))  # Redirect to logout after deleting the profile
+
+    return render_template('delete_profile.html', title='Delete Profile')
+
 if __name__ == '__main__':
 	app.run(debug=True)

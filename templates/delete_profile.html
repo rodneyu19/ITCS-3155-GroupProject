@@ -1,0 +1,15 @@
+{% extends "layout.html" %}
+{% block body %}
+    <body>
+        <div class="container-sm" style="max-width: fit-content; margin-top: 5rem; margin: auto; align-items: baseline;">
+            <form method="POST" action="">
+                {{ form.hidden_tag() }}
+                <fieldset class="form-group">
+                    <legend class="border-bottom mb-4" style="text-align: center;">Delete Profile</legend>
+                    <p>Are you sure you want to delete your account?</p>
+                    <button type="submit" class="btn btn-danger">Delete Profile</button>
+                </fieldset>
+            </form>
+        </div>
+    </body>
+{% endblock body %}
