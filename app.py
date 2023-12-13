@@ -43,10 +43,12 @@ def index():
     return render_template('home.html', all_posts=all_posts, latest_post=latest_post, embeds=embeds, username=username)
 
 @app.get('/post/new')
+@login_required
 def create_post_form():
     return render_template('create_post.html')
 
 @app.post('/post/new')
+@login_required
 def create_post():
     if not current_user.is_authenticated:
         flash('You need to log in to create a new post', 'danger')
