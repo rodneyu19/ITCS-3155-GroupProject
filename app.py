@@ -121,7 +121,9 @@ def logout():
 
 @app.route("/spotifylogin")
 def spotifylogin():
-    authUrl = create_spotify_oauth().get_authorize_url()
+    spotify_oauth = create_spotify_oauth()
+    authUrl = spotify_oauth.get_authorize_url()
+    print("Authorization URL:", authUrl)  # Print the generated URL for debugging
     return redirect(authUrl)
 
 @app.route('/spotifyredirect')
@@ -244,6 +246,13 @@ def get_single_post(post_id):
     embed_parts = single_post.link.split('/')
     embed = embed_parts[-1]
     return render_template('single_post.html', post=single_post, comments=comments, embed=embed)
+
+
+@app.route("/debug_spotify_auth_url")
+def debug_spotify_auth_url():
+    spotify_oauth = create_spotify_oauth()
+    authUrl = spotify_oauth.get_authorize_url()
+    return f"Authorization URL: <a href='{authUrl}'>{authUrl}</a>"
 
 if __name__ == '__main__':
 	app.run(debug=True)
