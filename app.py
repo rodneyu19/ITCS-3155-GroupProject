@@ -36,7 +36,7 @@ db.init_app(app)
 def index():
     all_posts = Post.query.all()
     latest_post = Post.query.order_by(desc(Post.post_id)).first()
-    embeds = [post.link.split('/')[-1] for  post in reversed(all_posts)]
+    embeds = [post.link.split('/')[-1] for  post in reversed(all_posts)] 
     if current_user.is_authenticated:
         username = current_user.username
     else: 
