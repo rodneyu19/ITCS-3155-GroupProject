@@ -23,6 +23,7 @@
                         <a href="{{ url_for('get_single_post', post_id=post.post_id) }}">
                             {{ post.title }}
                         </a>
+                        {% if username == post.username %}
                         <div class="btn-group float-right">
                             <button class="btn btn-light btn-sm dropdown-toggle" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-wrench" viewBox="0 0 16 16">
@@ -34,6 +35,7 @@
                                 <a class="dropdown-item" href="/post/delete/{{ post.post_id }}">Delete</a>
                             </div>
                         </div>
+                        {% endif %}
                     </h5>
                     <div class="card-body">
                         <p class="card-subtitle mb-2 text-muted">by {{post.username}}</p>

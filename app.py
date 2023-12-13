@@ -36,7 +36,11 @@ def index():
     all_posts = Post.query.all()
     latest_post = Post.query.order_by(desc(Post.post_id)).first()
     embeds = [post.link.split('/')[-1] for post in all_posts]
-    return render_template('home.html', all_posts=all_posts, latest_post=latest_post, embeds=embeds)
+    if current_user.is_authenticated:
+        username = current_user.username
+    else: 
+        username = 'Anonymous'
+    return render_template('home.html', all_posts=all_posts, latest_post=latest_post, embeds=embeds, username=username)
 
 @app.get('/post/new')
 def create_post_form():
