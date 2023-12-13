@@ -36,7 +36,11 @@ def index():
     all_posts = Post.query.all()
     latest_post = Post.query.order_by(desc(Post.post_id)).first()
     embeds = [post.link.split('/')[-1] for post in all_posts]
-    return render_template('home.html', all_posts=all_posts, latest_post=latest_post, embeds=embeds)
+    if current_user.is_authenticated:
+        username = current_user.username
+    else: 
+        username = 'Anonymous'
+    return render_template('home.html', all_posts=all_posts, latest_post=latest_post, embeds=embeds, username=username)
 
 @app.get('/post/new')
 def create_post_form():
@@ -44,12 +48,16 @@ def create_post_form():
 
 @app.post('/post/new')
 def create_post():
+    if not current_user.is_authenticated:
+        flash('You need to log in to create a new post', 'danger')
+        return redirect(url_for('login'))
     title = request.form.get('title')
     body = request.form.get('body')
     link = request.form.get('link')
-    new_post = Post(title=title, body=body, link=link)
+    new_post = Post(title=title, body=body, link=link, username=current_user.username)
     db.session.add(new_post)
     db.session.commit()
+    
     return redirect('/')
     
 @app.route('/about')
