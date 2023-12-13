@@ -194,21 +194,19 @@ def base():
 # Search Funciton
 @app.route('/search', methods=['POST'])
 def search():
-	form = SearchForm()
-	posts = Post.query
-	if form.validate_on_submit():
-		if form.searched.data != None:
-			# Get data from submitted form
-			Post.searched = form.searched.data
-			# Query the Database
-			posts = posts.filter(Post.body.like('%' + Post.searched + '%'))
-			posts = posts.order_by(Post.title).all()
-			return render_template("search.html", form = form, searched = Post.searched, posts = posts)
-		else:
-			error = "Cant search nothing"
-			return redirect(('home'))
-	# Return a response
-	return render_template("search.html", form=form)
+    form = SearchForm()
+    posts = Post.query
+    if form.validate_on_submit():
+        if form.searched.data != None:
+            # Get data from submitted form
+            Post.searched = form.searched.data
+            # Query the Database
+            posts = posts.filter(Post.body.like('%' + Post.searched + '%'))
+            posts = Post.order_by(Post.title).all()
+            return render_template("search.html", form = form, searched = Post.searched, posts = posts)
+        else:
+            error = "Cant search nothing"
+            return redirect(('home'))
     
 def get_token():
     token_info = session.get(TOKEN_INFO, None)

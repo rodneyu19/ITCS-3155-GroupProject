@@ -5,10 +5,11 @@
 	<h2> You searched for... </h2>
 	<p> {{ searched }}</p>
 	<br/>
-		{% for post in posts %}
-			<a href="{{ url_for('edit_post', id=post.id)}}"> 
-				{ post.title }
+		{{% for post in posts %}}
+			<a href="{{ url_for('post', id=post.id)}}"> 
+				{{% post.title %}}
 			</a> 
 	<br/>
-	{% endfor %}
+	{{% endfor %}}
+	
 {% endblock %}
