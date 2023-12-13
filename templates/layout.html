@@ -6,6 +6,7 @@
     <title>{% block title %}{% endblock %}</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
     <link href="https://fonts.googleapis.com/css?family=Inter" rel="stylesheet" type="text/css">
+    <link rel="stylesheet" href="style.css">
     <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
@@ -15,9 +16,65 @@
         font-family: Inter, Helvetica, sans-serif, Geneva, Tahoma, sans-serif;
         font-weight: 500;
     }
+    html, body {
+        width: 100%;
+        height: 105%;
+        margin: 0;
+        padding: 0;
+    }
+    .btn, .btn-primary {
+        color: #ffffff;
+        border-color: #7749F8;
+        background-color: #7749F8;
+    }
+    .btn-danger {
+        color: #fff;
+        background-color: #bd2130;
+        border-color: #b21f2d;
+    }
+    .btn-outline-primary{
+        color: #ffffff;
+        border-color: #7749F8;
+        background-color: #7749F8;
+    }
+    .btn-outline-primary:hover{
+        color: #ffffff;
+        border-color: #926cfb;
+        background-color: #926cfb;
+    }
+    .btn-outline-info {
+        color: #7749F8;
+        background-color: #7749F8;
+        color: #ffffff;
+        background-image: none;
+        border-color: #7749F8;
+    }
+    .btn-outline-info:hover,.btn-primary:hover {
+        color: #926cfb;
+        color: #ffffff;
+        background-color: #926cfb;
+        border-color: #926cfb;
+    }
+    .btn-outline-primary:not(:disabled):not(.disabled).active:focus, .btn-outline-primary:not(:disabled):not(.disabled):active:focus, .show>.btn-outline-primary.dropdown-toggle:focus,.outline-primary:not(:disabled):not(.disabled):active:focus, .outline-primary:not(:disabled):not(.disabled):active:focus,.btn-outline-info:not(:disabled):not(.disabled):active:focus, .btn-outline-info.dropdown-toggle:focus,.btn-outline-primary.focus, .btn-outline-primary:focus  {
+        box-shadow: 0 0 0 0.2rem rgba(143, 80, 215, 0.5) !important;
+    }
+    .btn-primary:not(:disabled):not(.disabled).active, .btn-primary:not(:disabled):not(.disabled):active, .show>.btn-primary.dropdown-toggle , .btn-outline-info:not(:disabled):not(.disabled):active, .btn-outline-primary:not(:disabled):not(.disabled):active {
+        color: #703efa;
+        color: #ffffff;
+        background-color: #703efa;
+        border-color: #703efa;
+    }
+    .form-control:focus {
+        color: #495057;
+        background-color: #fff;
+        border-color: #703efa;
+        outline: 0;
+        box-shadow: 0 0 0 0.2rem rgba(77, 23, 184, 0.5);
+    }
+    
+    
 </style>
-<body>
-    <nav class="navbar navbar-expand-lg navbar-light bg-light">
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
         <a class="navbar-brand" href="/">Musica</a>
         <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
             <span class="navbar-toggler-icon"></span>

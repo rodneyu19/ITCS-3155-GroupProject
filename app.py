@@ -8,6 +8,7 @@ import spotipy
 from flask_bcrypt import Bcrypt
 from flask_login import LoginManager, login_user, current_user, logout_user, login_required
 from sqlalchemy import desc
+from sqlalchemy.orm import joinedload
 import time
 
 
@@ -35,7 +36,7 @@ db.init_app(app)
 def index():
     all_posts = Post.query.all()
     latest_post = Post.query.order_by(desc(Post.post_id)).first()
-    embeds = [post.link.split('/')[-1] for post in all_posts]
+    embeds = [post.link.split('/')[-1] for  post in reversed(all_posts)] 
     if current_user.is_authenticated:
         username = current_user.username
     else: 
@@ -194,19 +195,21 @@ def base():
 # Search Funciton
 @app.route('/search', methods=['POST'])
 def search():
-    form = SearchForm()
-    posts = Post.query
-    if form.validate_on_submit():
-        if form.searched.data != None:
-            # Get data from submitted form
-            Post.searched = form.searched.data
-            # Query the Database
-            posts = posts.filter(Post.body.like('%' + Post.searched + '%'))
-            posts = Post.order_by(Post.title).all()
-            return render_template("search.html", form = form, searched = Post.searched, posts = posts)
-        else:
-            error = "Cant search nothing"
-            return redirect(('home'))
+	form = SearchForm()
+	posts = Post.query
+	if form.validate_on_submit():
+		if form.searched.data != None:
+			# Get data from submitted form
+			Post.searched = form.searched.data
+			# Query the Database
+			posts = posts.filter(Post.body.like('%' + Post.searched + '%'))
+			posts = posts.order_by(Post.title).all()
+			return render_template("search.html", form = form, searched = Post.searched, posts = posts)
+		else:
+			error = "Cant search nothing"
+			return redirect(('home'))
+	# Return a response
+	return render_template("search.html", form=form)
     
 def get_token():
     token_info = session.get(TOKEN_INFO, None)
@@ -280,10 +283,16 @@ def get_single_post(post_id):
 @login_required
 def delete_profile():
     if request.method == 'POST':
+        # Delete the users posts first
+        posts_to_delete = Post.query.filter_by(username=current_user.username).all()
+        for post in posts_to_delete:
+            db.session.delete(post)
+        
+        # Delete user account
         db.session.delete(current_user)
         db.session.commit()
         flash('Your account has been deleted!', 'success')
-        return redirect(url_for('logout'))  # Redirect to logout after deleting the profile
+        return redirect(url_for('logout'))
 
     return render_template('delete_profile.html', title='Delete Profile')
 
