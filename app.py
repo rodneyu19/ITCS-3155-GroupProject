@@ -1,5 +1,5 @@
 from flask import Flask, render_template, request, redirect, flash, url_for, session
-from src.models import db, Post, Users, Comment
+from src.models import db, Post, Users
 from dotenv import load_dotenv
 import os
 from forms import RegistrationForm, LoginForm, SearchForm, EditProfileForm
@@ -9,6 +9,7 @@ from flask_bcrypt import Bcrypt
 from flask_login import LoginManager, login_user, current_user, logout_user, login_required
 from sqlalchemy import desc
 import time
+from sqlalchemy.orm import relationship
 
 
 app = Flask(__name__)
@@ -244,6 +245,18 @@ def add_comment(post_id):
 
     flash('Comment added successfully', 'success')
     return redirect(url_for('get_single_post', post_id=post_id))
+
+class Comment(db.Model):
+    __tablename__ = 'comments'
+
+    comment_id = db.Column(db.Integer, primary_key=True)
+    comment = db.Column(db.String(255))
+
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'))
+    user = db.relationship('Users', backref='user_comments')
+
+    post_id = db.Column(db.Integer, db.ForeignKey('post.post_id'))
+    post = db.relationship('Post', backref='post_comments')
 
 
 @app.get('/post/<int:post_id>')

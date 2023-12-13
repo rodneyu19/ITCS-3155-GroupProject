@@ -22,9 +22,9 @@ class Users(db.Model, UserMixin):
     firstname = db.Column(db.String(16))
     lastname = db.Column(db.String(16))
 
-class Comment(db.Model):
-    __tablename__ = 'comments'
-    comment_id = db.Column(db.Integer, primary_key=True)
-    comment = db.Column(db.Text, nullable=False)
-    post_id = db.Column(db.Integer, db.ForeignKey('post.post_id'), nullable=False)
+# class Comment(db.Model):
+#     __tablename__ = 'comments'
+#     comment_id = db.Column(db.Integer, primary_key=True)
+#     comment = db.Column(db.Text, nullable=False)
+#     post_id = db.Column(db.Integer, db.ForeignKey('post.post_id'), nullable=False)
  
