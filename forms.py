@@ -21,6 +21,7 @@ class LoginForm(FlaskForm):
 	
 class EditProfileForm(FlaskForm):
     username = StringField('Username', validators=[DataRequired(), Length(min=2, max =16)])
+    spotifyid = StringField("")
     firstname = StringField('Firstname', validators=[Optional(), Length(min=1, max =16)])
     lastname = StringField('Lastname', validators=[Optional(), Length(min=1, max =16)])
     password = PasswordField(validators=[Optional(), Length(min=5)])
