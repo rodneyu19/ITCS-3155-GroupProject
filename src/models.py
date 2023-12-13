@@ -13,7 +13,7 @@ class Post(db.Model):
     title = db.Column(db.String(255), nullable=False)
     body = db.Column(db.Text, nullable=False)
     link = db.Column(db.String(255))
-    username = db.Column(db.String(16), db.ForeignKey('users.username'), nullable=False) 
+    userid = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False) 
     
 class Users(db.Model, UserMixin):
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)

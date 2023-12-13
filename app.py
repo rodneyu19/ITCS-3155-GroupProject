@@ -35,13 +35,16 @@ db.init_app(app)
 @app.route('/home', methods=['GET']) 
 def index():
     all_posts = Post.query.all()
+    all_users = Users.query.all()
     latest_post = Post.query.order_by(desc(Post.post_id)).first()
     embeds = [post.link.split('/')[-1] for  post in reversed(all_posts)] 
     if current_user.is_authenticated:
         username = current_user.username
+        userid = current_user.id
     else: 
         username = 'Anonymous'
-    return render_template('home.html', all_posts=all_posts, latest_post=latest_post, embeds=embeds, username=username)
+        userid = None
+    return render_template('home.html', all_users=all_users, all_posts=all_posts, latest_post=latest_post, embeds=embeds, username=username, userid=userid)
 
 @app.get('/post/new')
 @login_required
@@ -57,7 +60,8 @@ def create_post():
     title = request.form.get('title')
     body = request.form.get('body')
     link = request.form.get('link')
-    new_post = Post(title=title, body=body, link=link, username=current_user.username)
+    userid = Users.query.filter_by(username=current_user.username).first()
+    new_post = Post(title=title, body=body, link=link, userid=userid.id)
     db.session.add(new_post)
     db.session.commit()
     
@@ -108,15 +112,31 @@ def login():
 def profile():
     form = EditProfileForm()
     if form.validate_on_submit():
-        if(form.password.data != ''):
-            hashedPass = bcrypt.generate_password_hash(form.confirm_password.data).decode('utf8')
-            current_user.password = hashedPass
-        current_user.username = form.username.data
-        current_user.firstname = form.firstname.data
-        current_user.lastname = form.lastname.data
-        db.session.commit()
-        flash(f'Account updated!', 'success')
-        return redirect(url_for('profile'))
+        user = Users.query.filter_by(username=form.username.data).first()
+        if(user is not None):
+            if (user.id == current_user.id):
+                if(form.password.data != ''):
+                    hashedPass = bcrypt.generatse_password_hash(form.confirm_password.data).decode('utf8')
+                    current_user.password = hashedPass
+                current_user.firstname = form.firstname.data
+                current_user.lastname = form.lastname.data
+                db.session.commit()
+                flash(f'Account updated!', 'success')
+                return redirect(url_for('profile'))
+            else:
+                flash('Invalid username', 'danger')
+                return redirect(url_for('profile'))
+        else:
+            if(form.password.data != ''):
+                hashedPass = bcrypt.generatse_password_hash(form.confirm_password.data).decode('utf8')
+                current_user.password = hashedPass
+            current_user.username = form.username.data
+            current_user.firstname = form.firstname.data
+            current_user.lastname = form.lastname.data
+            db.session.commit()
+            flash(f'Account updated!', 'success')
+            return redirect(url_for('profile'))    
+            
     elif request.method == 'GET':
         # if(current_user.spotify_id is not None):
         if(current_user.spotify_id):
@@ -284,7 +304,7 @@ def get_single_post(post_id):
 def delete_profile():
     if request.method == 'POST':
         # Delete the users posts first
-        posts_to_delete = Post.query.filter_by(username=current_user.username).all()
+        posts_to_delete = Post.query.filter_by(userid=current_user.id).all()
         for post in posts_to_delete:
             db.session.delete(post)
         
