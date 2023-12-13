@@ -21,18 +21,17 @@ class LoginForm(FlaskForm):
 	
 class EditProfileForm(FlaskForm):
     username = StringField('Username', validators=[DataRequired(), Length(min=2, max =16)])
+    spotifyid = StringField("")
     firstname = StringField('Firstname', validators=[Optional(), Length(min=1, max =16)])
     lastname = StringField('Lastname', validators=[Optional(), Length(min=1, max =16)])
     password = PasswordField(validators=[Optional(), Length(min=5)])
-    # if(password is not None):
-    #     password = PasswordField(validators=[Optional(), Length(min=5)])
     confirm_password = PasswordField('Confirm Password',validators=[EqualTo('password')])
     save = SubmitField('Save')
-    def validate_username(self, usernames):
-        user = Users.query.filter_by(username=usernames.data).first()
-        if(usernames.data != user.username):
-            if user:
-                raise ValidationError('Sorry username is already taken')
+    # def validate_username(self, usernames):
+    #     user = Users.query.filter_by(username=usernames.data).first()
+    #     if (user.username == usernames.data):
+    #         if user:
+    #             raise ValidationError('Sorry username is already taken')
 
 # Search Form 
 class SearchForm(FlaskForm):

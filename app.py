@@ -8,6 +8,7 @@ import spotipy
 from flask_bcrypt import Bcrypt
 from flask_login import LoginManager, login_user, current_user, logout_user, login_required
 from sqlalchemy import desc
+from sqlalchemy.orm import joinedload
 import time
 from sqlalchemy.orm import relationship
 
@@ -35,19 +36,24 @@ db.init_app(app)
 @app.route('/home', methods=['GET']) 
 def index():
     all_posts = Post.query.all()
+    all_users = Users.query.all()
     latest_post = Post.query.order_by(desc(Post.post_id)).first()
-    embeds = [post.link.split('/')[-1] for post in all_posts]
+    embeds = [post.link.split('/')[-1] for  post in reversed(all_posts)] 
     if current_user.is_authenticated:
         username = current_user.username
+        userid = current_user.id
     else: 
         username = 'Anonymous'
-    return render_template('home.html', all_posts=all_posts, latest_post=latest_post, embeds=embeds, username=username)
+        userid = None
+    return render_template('home.html', all_users=all_users, all_posts=all_posts, latest_post=latest_post, embeds=embeds, username=username, userid=userid)
 
 @app.get('/post/new')
+@login_required
 def create_post_form():
     return render_template('create_post.html')
 
 @app.post('/post/new')
+@login_required
 def create_post():
     if not current_user.is_authenticated:
         flash('You need to log in to create a new post', 'danger')
@@ -55,7 +61,8 @@ def create_post():
     title = request.form.get('title')
     body = request.form.get('body')
     link = request.form.get('link')
-    new_post = Post(title=title, body=body, link=link, username=current_user.username)
+    userid = Users.query.filter_by(username=current_user.username).first()
+    new_post = Post(title=title, body=body, link=link, userid=userid.id)
     db.session.add(new_post)
     db.session.commit()
     
@@ -106,16 +113,35 @@ def login():
 def profile():
     form = EditProfileForm()
     if form.validate_on_submit():
-        if(form.password.data != ''):
-            hashedPass = bcrypt.generate_password_hash(form.confirm_password.data).decode('utf8')
-            current_user.password = hashedPass
-        current_user.username = form.username.data
-        current_user.firstname = form.firstname.data
-        current_user.lastname = form.lastname.data
-        db.session.commit()
-        flash(f'Account updated!', 'success')
-        return redirect(url_for('profile'))
+        user = Users.query.filter_by(username=form.username.data).first()
+        if(user is not None):
+            if (user.id == current_user.id):
+                if(form.password.data != ''):
+                    hashedPass = bcrypt.generate_password_hash(form.confirm_password.data).decode('utf8')
+                    current_user.password = hashedPass
+                current_user.firstname = form.firstname.data
+                current_user.lastname = form.lastname.data
+                db.session.commit()
+                flash(f'Account updated!', 'success')
+                return redirect(url_for('profile'))
+            else:
+                flash('Invalid username', 'danger')
+                return redirect(url_for('profile'))
+        else:
+            if(form.password.data != ''):
+                hashedPass = bcrypt.generate_password_hash(form.confirm_password.data).decode('utf8')
+                current_user.password = hashedPass
+            current_user.username = form.username.data
+            current_user.firstname = form.firstname.data
+            current_user.lastname = form.lastname.data
+            db.session.commit()
+            flash(f'Account updated!', 'success')
+            return redirect(url_for('profile'))    
+            
     elif request.method == 'GET':
+        # if(current_user.spotify_id is not None):
+        if(current_user.spotify_id):
+            form.spotifyid.data = current_user.spotify_id
         form.username.data = current_user.username
         form.firstname.data = current_user.firstname
         form.lastname.data = current_user.lastname
@@ -137,7 +163,7 @@ def spotifylogin():
 def spotifyRedirect():
     session.clear()
     code = request.args.get('code')
-    session[TOKEN_INFO] =  create_spotify_oauth().get_access_token(code)
+    session[TOKEN_INFO] = create_spotify_oauth().get_access_token(code)
     try:
         token_info = get_token()
     except:
@@ -146,7 +172,7 @@ def spotifyRedirect():
     sp = spotipy.Spotify(auth=token_info['access_token'])
     userId = sp.me()['id']
     
-    existUser = Users.query.filter_by(username=userId).first()
+    existUser = Users.query.filter_by(spotify_id=userId).first()
     if(existUser):
         login_user(existUser, True)
         current_user.username = userId
@@ -154,14 +180,32 @@ def spotifyRedirect():
         flash('You have been logged in!', 'success')
         return redirect(next_page) if next_page else redirect(('profile'))
     else:
-        hashedPass = bcrypt.generate_password_hash("temp").decode('utf8')
-        newUser = Users(username = userId, password = hashedPass)
+        flash(f'User does not exist, create account first', 'danger')
+        return redirect(('spotifyredirectsignup'))
+    # return redirect(url_for('profile',_external=True))
+
+@app.route('/spotifyredirectsignup', methods=['GET', 'POST'])
+def spotifyRedirectSignup():
+    form = RegistrationForm()
+    code = request.args.get('code')
+    session[TOKEN_INFO] =  create_spotify_oauth().get_access_token(code)
+    try:
+        token_info = get_token()
+    except:
+        flash('not logged in', 'danger')
+        redirect(url_for('spotifylogin'))
+    sp = spotipy.Spotify(auth=token_info['access_token'])
+    userId = sp.me()['id']
+
+    if form.validate_on_submit():
+        hashedPass = bcrypt.generate_password_hash(form.confirm_password.data).decode('utf8')
+        newUser = Users(username = form.username.data, password = hashedPass, spotify_id = userId)
         db.session.add(newUser)
         db.session.commit()
-        current_user.username = userId
-        flash(f'Account {userId}! CHANGE YOUR PASSWORD NOW', 'danger')
-        return redirect(('profile'))
-    # return redirect(url_for('profile',_external=True))
+        flash(f'Account created for {form.username.data}!', 'success')
+        return redirect(url_for('profile'))
+    return render_template('registerspotify.html', title='registerspotify', form=form)
+
 
 # Pass though Navbar
 @app.context_processor
@@ -172,19 +216,21 @@ def base():
 # Search Funciton
 @app.route('/search', methods=['POST'])
 def search():
-    form = SearchForm()
-    posts = Post.query
-    if form.validate_on_submit():
-        if form.searched.data != None:
-            # Get data from submitted form
-            Post.searched = form.searched.data
-            # Query the Database
-            posts = posts.filter(Post.body.like('%' + Post.searched + '%'))
-            posts = Post.order_by(Post.title).all()
-            return render_template("search.html", form = form, searched = Post.searched, posts = posts)
-        else:
-            error = "Cant search nothing"
-            return redirect(('home'))
+	form = SearchForm()
+	posts = Post.query
+	if form.validate_on_submit():
+		if form.searched.data != None:
+			# Get data from submitted form
+			Post.searched = form.searched.data
+			# Query the Database
+			posts = posts.filter(Post.body.like('%' + Post.searched + '%'))
+			posts = posts.order_by(Post.title).all()
+			return render_template("search.html", form = form, searched = Post.searched, posts = posts)
+		else:
+			error = "Cant search nothing"
+			return redirect(('home'))
+	# Return a response
+	return render_template("search.html", form=form)
     
 def get_token():
     token_info = session.get(TOKEN_INFO, None)
@@ -256,6 +302,23 @@ def get_single_post(post_id):
     embed_parts = single_post.link.split('/')
     embed = embed_parts[-1]
     return render_template('single_post.html', post=single_post, comments=comments, embed=embed)
+
+@app.route('/profile/delete', methods=['GET', 'POST'])
+@login_required
+def delete_profile():
+    if request.method == 'POST':
+        # Delete the users posts first
+        posts_to_delete = Post.query.filter_by(userid=current_user.id).all()
+        for post in posts_to_delete:
+            db.session.delete(post)
+        
+        # Delete user account
+        db.session.delete(current_user)
+        db.session.commit()
+        flash('Your account has been deleted!', 'success')
+        return redirect(url_for('logout'))
+
+    return render_template('delete_profile.html', title='Delete Profile')
 
 if __name__ == '__main__':
 	app.run(debug=True)

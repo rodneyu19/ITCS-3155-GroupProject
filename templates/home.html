@@ -17,13 +17,13 @@
     <div class="row">
         <div class="col-sm-8">    
             <div class="container">
-            {% for post in all_posts %}
+            {% for post in all_posts|reverse %}
                 <div class="card" style="width: 63rem;">
                     <h5 class="card-header">
                         <a href="{{ url_for('get_single_post', post_id=post.post_id) }}">
                             {{ post.title }}
                         </a>
-                        {% if username == post.username %}
+                        {% if userid == post.userid %}
                         <div class="btn-group float-right">
                             <button class="btn btn-light btn-sm dropdown-toggle" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-wrench" viewBox="0 0 16 16">
@@ -38,7 +38,11 @@
                         {% endif %}
                     </h5>
                     <div class="card-body">
-                        <p class="card-subtitle mb-2 text-muted">by {{post.username}}</p>
+                        {%for user in all_users%}
+                            {%if post.userid == user.id%}
+                                <p class="card-subtitle mb-2 text-muted">By {{user.username}}</p>
+                            {%endif%}
+                        {%endfor%}
                         <!--Filter so Spotify isn't embedded when a user leaves the link section blank, or accidently puts a few char-->
                         {% if embeds[loop.index0]|length > 15 %}
                             <iframe style="border-radius:12px" src="https://open.spotify.com/embed/track/{{embeds[loop.index0]}}?utm_source=generator" width="100%" height="100" frameBorder="0" allowfullscreen="" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="lazy"></iframe>
