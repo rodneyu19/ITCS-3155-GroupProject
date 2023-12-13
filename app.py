@@ -10,6 +10,7 @@ from flask_login import LoginManager, login_user, current_user, logout_user, log
 from sqlalchemy import desc
 from sqlalchemy.orm import joinedload
 import time
+from sqlalchemy.orm import relationship
 
 
 app = Flask(__name__)
@@ -291,13 +292,17 @@ def add_comment(post_id):
     flash('Comment added successfully', 'success')
     return redirect(url_for('get_single_post', post_id=post_id))
 
+
+
+
 @app.get('/post/<int:post_id>')
 def get_single_post(post_id):
+    all_users = Users.query.all()
     single_post = Post.query.get_or_404(post_id)
     comments = Comment.query.filter_by(post_id=post_id).all()
     embed_parts = single_post.link.split('/')
     embed = embed_parts[-1]
-    return render_template('single_post.html', post=single_post, comments=comments, embed=embed)
+    return render_template('single_post.html', post=single_post, comments=comments, embed=embed, all_users=all_users)
 
 @app.route('/profile/delete', methods=['GET', 'POST'])
 @login_required
@@ -315,6 +320,43 @@ def delete_profile():
         return redirect(url_for('logout'))
 
     return render_template('delete_profile.html', title='Delete Profile')
+
+@app.route('/comment/delete/<int:comment_id>')
+@login_required
+def delete_comment(comment_id):
+    comment = Comment.query.get(comment_id)
+
+    # For when the comment doesn't exist, but that shouldn't happen
+    if not comment:
+        flash('Comment not found', 'danger')
+        return redirect(url_for('index'))
+
+    # Check if the current logged in user is the same as the one who made the comment
+    if current_user.is_authenticated and current_user.id == comment.id:
+        db.session.delete(comment)
+        db.session.commit()
+        flash('Comment deleted successfully', 'success')
+    else:
+        flash('You do not have permission to delete this comment', 'danger')
+
+    return redirect(url_for('get_single_post', post_id=comment.post_id))
+
+@app.route('/comment/edit/<int:comment_id>', methods=['GET', 'POST'])
+@login_required
+def edit_comment(comment_id):
+    comment = Comment.query.get(comment_id)
+
+    if not comment:
+        flash('Comment not found', 'danger')
+        return redirect(url_for('get_single_post', post_id=comment.post_id))
+
+    if request.method == 'POST':
+        comment.comment = request.form.get('edited_comment')
+        db.session.commit()
+        flash('Comment updated successfully', 'success')
+        return redirect(url_for('get_single_post', post_id=comment.post_id))
+
+    return redirect(url_for('get_single_post', post_id=comment.post_id))
 
 if __name__ == '__main__':
 	app.run(debug=True)

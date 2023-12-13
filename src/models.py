@@ -25,7 +25,13 @@ class Users(db.Model, UserMixin):
 
 class Comment(db.Model):
     __tablename__ = 'comments'
-    comment_id = db.Column(db.Integer, primary_key=True)
-    comment = db.Column(db.Text, nullable=False)
-    post_id = db.Column(db.Integer, db.ForeignKey('post.post_id'), nullable=False)
+
+    comment_id = db.Column(db.Integer, primary_key=True)  # Define the primary key column
+    comment = db.Column(db.String(255))
+
+    id = db.Column(db.Integer, db.ForeignKey('users.id'))
+    user = db.relationship('Users', backref='user_comments')
+
+    post_id = db.Column(db.Integer, db.ForeignKey('post.post_id'))
+    post = db.relationship('Post', backref='post_comments')
  
