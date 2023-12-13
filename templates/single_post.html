@@ -21,7 +21,11 @@
                         <h5>{{ post.title }}</h5>
                     </div>
                     <div class="card-body">
-                        <h6 class="card-subtitle mb-2 text-muted">By: {{ post.username }}</h6>
+                        {% for user in all_users %}
+                            {% if post.userid == user.id %}
+                                <h6 class="card-subtitle mb-2 text-muted">By {{ user.username }}</h6>
+                            {% endif %}
+                        {% endfor %}
                         <p class="card-text">{{ post.body }}</p>
                         <!-- Other post details -->
                     </div>
@@ -31,7 +35,45 @@
         <h2>Comments</h2>
         <ul class="list-group">
             {% for comment in comments %}
-                <li class="list-group-item">{{ comment.comment }}</li>
+                <li class="list-group-item">
+                    <span class="font-weight-bold">{{ comment.user.username }}: </span>
+                    <span>{{ comment.comment }}</span>
+                    
+                    {% if current_user.is_authenticated and current_user.id == comment.user.id %}
+                    <div class="btn-group float-right">
+                        <button class="btn btn-light btn-sm dropdown-toggle" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-wrench" viewBox="0 0 16 16">
+                                <path d="M.102 2.223A3.004 3.004 0 0 0 3.78 5.897l6.341 6.252A3.003 3.003 0 0 0 13 16a3 3 0 1 0-.851-5.878L5.897 3.781A3.004 3.004 0 0 0 2.223.1l2.141 2.142L4 4l-1.757.364L.102 2.223zm13.37 9.019.528.026.287.445.445.287.026.529L15 13l-.242.471-.026.529-.445.287-.287.445-.529.026L13 15l-.471-.242-.529-.026-.287-.445-.445-.287-.026-.529L11 13l.242-.471.026-.529.445-.287.287-.445.529-.026L13 11l.471.242z"/>
+                            </svg>
+                        </button>
+                        <div class="dropdown-menu" aria-labelledby="dropdownMenuLink">
+                            <a class="dropdown-menu-item" href="{{ url_for('edit_comment', comment_id=comment.comment_id) }}" data-toggle="modal" data-target="#editCommentModal{{ comment.comment_id }}">Edit</a>
+                            <a class="dropdown-menu-item" href="{{ url_for('delete_comment', comment_id=comment.comment_id) }}">Delete</a>
+                        </div>
+                    {% endif %}
+                </li>
+                <!--Copied the edit modal from home.html-->
+                <div class="modal fade" id="editCommentModal{{ comment.comment_id }}" tabindex="-1" role="dialog" aria-labelledby="editCommentModalLabel{{ comment.comment_id }}" aria-hidden="true">
+                    <div class="modal-dialog" role="document">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title" id="editCommentModalLabel{{ comment.comment_id }}">Edit Comment</h5>
+                                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                    <span aria-hidden="true">&times;</span>
+                                </button>
+                            </div>
+                            <div class="modal-body">
+                                <form action="{{ url_for('edit_comment', comment_id=comment.comment_id) }}" method="POST">
+                                    <div class="form-group">
+                                        <label for="editedComment{{ comment.comment_id }}">Edit your comment:</label>
+                                        <textarea class="form-control" id="editedComment{{ comment.comment_id }}" name="edited_comment" rows="3" required>{{ comment.comment }}</textarea>
+                                    </div>
+                                    <button type="submit" class="btn btn-primary">Save Changes</button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             {% endfor %}
         </ul>
 
