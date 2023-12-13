@@ -1,5 +1,5 @@
 from flask import Flask, render_template, request, redirect, flash, url_for, session
-from src.models import db, Post, Users, Comment
+from src.models import db, Post, Users, Comment, Like
 from dotenv import load_dotenv
 import os
 from forms import RegistrationForm, LoginForm, SearchForm, EditProfileForm
@@ -11,6 +11,7 @@ from sqlalchemy import desc
 from sqlalchemy.orm import joinedload
 import time
 from sqlalchemy.orm import relationship
+from sqlalchemy import func
 
 
 app = Flask(__name__)
@@ -38,14 +39,22 @@ def index():
     all_posts = Post.query.all()
     all_users = Users.query.all()
     latest_post = Post.query.order_by(desc(Post.post_id)).first()
-    embeds = [post.link.split('/')[-1] for  post in reversed(all_posts)] 
+    
+    # Get the number of likes for each post using SQLAlchemy's func.count
+    like_counts = db.session.query(Post.post_id, func.sum(Post.likes)).group_by(Post.post_id).all()
+    like_counts = dict(like_counts)
+
+    # Extract the last part of the link for embedding
+    embeds = [post.link.split('/')[-1] for post in reversed(all_posts)] 
+
     if current_user.is_authenticated:
         username = current_user.username
         userid = current_user.id
     else: 
         username = 'Anonymous'
         userid = None
-    return render_template('home.html', all_users=all_users, all_posts=all_posts, latest_post=latest_post, embeds=embeds, username=username, userid=userid)
+    
+    return render_template('home.html', all_users=all_users, all_posts=all_posts, latest_post=latest_post, embeds=embeds, username=username, userid=userid, like_counts=like_counts)
 
 @app.get('/post/new')
 @login_required
@@ -77,14 +86,16 @@ def register():
     if current_user.is_authenticated:
         flash('You\'re already logged in!', 'success')
         return redirect('/')
+
     form = RegistrationForm()
     if form.validate_on_submit():
         hashedPass = bcrypt.generate_password_hash(form.confirm_password.data).decode('utf8')
-        newUser = Users(username = form.username.data, password = hashedPass)
+        newUser = Users(username=form.username.data, password=hashedPass)
         db.session.add(newUser)
         db.session.commit()
         flash(f'Account created for {form.username.data}!', 'success')
-        return redirect(url_for('profile'))
+        return redirect('/')  # Redirect to the homepage after successful signup
+
     return render_template('register.html', title='register', form=form)
 
 @loginManager.user_loader
@@ -357,6 +368,28 @@ def edit_comment(comment_id):
         return redirect(url_for('get_single_post', post_id=comment.post_id))
 
     return redirect(url_for('get_single_post', post_id=comment.post_id))
+
+@app.route('/like_post/<int:post_id>', methods=['GET'])
+@login_required
+def like_post(post_id):
+    post = Post.query.get(post_id)
+    
+    if post is None:
+        return redirect(url_for('index'))
+    
+    liked_by_list = post.liked_by.split(',') if post.liked_by else []
+    
+    if str(current_user.id) in liked_by_list:
+        liked_by_list.remove(str(current_user.id))
+        post.likes -= 1
+    else:
+        liked_by_list.append(str(current_user.id))
+        post.likes += 1
+    
+    post.liked_by = ','.join(liked_by_list)
+    db.session.commit()
+    
+    return redirect(url_for('index'))
 
 if __name__ == '__main__':
 	app.run(debug=True)
