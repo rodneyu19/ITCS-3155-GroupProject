@@ -8,6 +8,7 @@ import spotipy
 from flask_bcrypt import Bcrypt
 from flask_login import LoginManager, login_user, current_user, logout_user, login_required
 from sqlalchemy import desc
+from sqlalchemy.orm import joinedload
 import time
 
 
@@ -282,10 +283,16 @@ def get_single_post(post_id):
 @login_required
 def delete_profile():
     if request.method == 'POST':
+        # Delete the users posts first
+        posts_to_delete = Post.query.filter_by(username=current_user.username).all()
+        for post in posts_to_delete:
+            db.session.delete(post)
+        
+        # Delete user account
         db.session.delete(current_user)
         db.session.commit()
         flash('Your account has been deleted!', 'success')
-        return redirect(url_for('logout'))  # Redirect to logout after deleting the profile
+        return redirect(url_for('logout'))
 
     return render_template('delete_profile.html', title='Delete Profile')
 
