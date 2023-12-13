@@ -297,11 +297,12 @@ def add_comment(post_id):
 
 @app.get('/post/<int:post_id>')
 def get_single_post(post_id):
+    all_users = Users.query.all()
     single_post = Post.query.get_or_404(post_id)
     comments = Comment.query.filter_by(post_id=post_id).all()
     embed_parts = single_post.link.split('/')
     embed = embed_parts[-1]
-    return render_template('single_post.html', post=single_post, comments=comments, embed=embed)
+    return render_template('single_post.html', post=single_post, comments=comments, embed=embed, all_users=all_users)
 
 @app.route('/profile/delete', methods=['GET', 'POST'])
 @login_required

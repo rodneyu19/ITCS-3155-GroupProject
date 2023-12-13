@@ -21,7 +21,11 @@
                         <h5>{{ post.title }}</h5>
                     </div>
                     <div class="card-body">
-                        <h6 class="card-subtitle mb-2 text-muted">By: {{ post.username }}</h6>
+                        {% for user in all_users %}
+                            {% if post.userid == user.id %}
+                                <h6 class="card-subtitle mb-2 text-muted">By {{ user.username }}</h6>
+                            {% endif %}
+                        {% endfor %}
                         <p class="card-text">{{ post.body }}</p>
                         <!-- Other post details -->
                     </div>
