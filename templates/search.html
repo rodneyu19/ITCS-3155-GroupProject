@@ -1,14 +1,21 @@
 {% extends 'layout.html' %}
 
 {% block title %}Search{% endblock %}
+
 {% block body %}
-	<h2> You searched for... </h2>
-	<p> {{ searched }}</p>
-	<br/>
-		{% for post in posts %}
-			<a href="{{ url_for('edit_post', id=post.id)}}"> 
-				{ post.title }
-			</a> 
-	<br/>
-	{% endfor %}
+    <h2>You searched for "{{ searched }}"</h2>
+    <br/>
+    {% if posts %}
+        <ul>
+            {% for post in posts %}
+                <li>
+                    <a href="{{ url_for('get_single_post', post_id=post.post_id) }}">
+                        {{ post.title }}
+                    </a>
+                </li>
+            {% endfor %}
+        </ul>
+    {% else %}
+        <p>No results found</p>
+    {% endif %}
 {% endblock %}
