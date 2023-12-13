@@ -341,5 +341,22 @@ def delete_comment(comment_id):
 
     return redirect(url_for('get_single_post', post_id=comment.post_id))
 
+@app.route('/comment/edit/<int:comment_id>', methods=['GET', 'POST'])
+@login_required
+def edit_comment(comment_id):
+    comment = Comment.query.get(comment_id)
+
+    if not comment:
+        flash('Comment not found', 'danger')
+        return redirect(url_for('get_single_post', post_id=comment.post_id))
+
+    if request.method == 'POST':
+        comment.comment = request.form.get('edited_comment')
+        db.session.commit()
+        flash('Comment updated successfully', 'success')
+        return redirect(url_for('get_single_post', post_id=comment.post_id))
+
+    return redirect(url_for('get_single_post', post_id=comment.post_id))
+
 if __name__ == '__main__':
 	app.run(debug=True)
