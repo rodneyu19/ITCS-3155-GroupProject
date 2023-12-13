@@ -71,6 +71,9 @@
         outline: 0;
         box-shadow: 0 0 0 0.2rem rgba(77, 23, 184, 0.5);
     }
+    .text-purple {
+    color: #6f42c1;
+    }
     
     
 </style>
@@ -86,17 +89,6 @@
                 <li class="nav-item active">
                     <a class="nav-link" href="/">Home<span class="sr-only">(current)</span></a>
                 </li>
-                <li class="nav-item dropdown">
-                    <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                        Topics
-                    </a>
-                <div class="dropdown-menu" aria-labelledby="navbarDropdown">
-                    <a class="dropdown-item" href="#">Topic</a>
-                    <a class="dropdown-item" href="#">Topic 2</a>
-                    <div class="dropdown-divider"></div>
-                    <a class="dropdown-item" href="#">Topic 3</a>
-                </div>
-                </li>
                 <li class="nav-item">
                     <a class="nav-link" href="/post/new">Create Post</a>
                 </li>
@@ -109,7 +101,7 @@
             <div class="form-inline my-2 my-lg-0" style="gap: 10px;">
                 <form method="POST" action="{{url_for('search')}}" class="form-inline">
                     {{ form.hidden_tag() }}
-                    <input class="form-control mr-sm-2" type="search" placeholder="Search" aria-label="Search", name="searched">
+                    <input class="form-control mr-sm-2" type="search" placeholder="Search" aria-label="Search" name="searched">
                 </form>
             <!-- END Search Bar -->
                 <form >
@@ -126,3 +118,4 @@
         </div>
     </nav>
     {% block body %}{% endblock %}
+</html>
