@@ -115,6 +115,9 @@ def profile():
         flash(f'Account updated!', 'success')
         return redirect(url_for('profile'))
     elif request.method == 'GET':
+        # if(current_user.spotify_id is not None):
+        if(current_user.spotify_id):
+            form.spotifyid.data = "(" + current_user.spotify_id + ")"
         form.username.data = current_user.username
         form.firstname.data = current_user.firstname
         form.lastname.data = current_user.lastname
@@ -136,7 +139,7 @@ def spotifylogin():
 def spotifyRedirect():
     session.clear()
     code = request.args.get('code')
-    session[TOKEN_INFO] =  create_spotify_oauth().get_access_token(code)
+    session[TOKEN_INFO] = create_spotify_oauth().get_access_token(code)
     try:
         token_info = get_token()
     except:
@@ -145,7 +148,7 @@ def spotifyRedirect():
     sp = spotipy.Spotify(auth=token_info['access_token'])
     userId = sp.me()['id']
     
-    existUser = Users.query.filter_by(username=userId).first()
+    existUser = Users.query.filter_by(spotify_id=userId).first()
     if(existUser):
         login_user(existUser, True)
         current_user.username = userId
@@ -153,14 +156,32 @@ def spotifyRedirect():
         flash('You have been logged in!', 'success')
         return redirect(next_page) if next_page else redirect(('profile'))
     else:
-        hashedPass = bcrypt.generate_password_hash("temp").decode('utf8')
-        newUser = Users(username = userId, password = hashedPass)
+        flash(f'User does not exist, create account first', 'danger')
+        return redirect(('spotifyredirectsignup'))
+    # return redirect(url_for('profile',_external=True))
+
+@app.route('/spotifyredirectsignup', methods=['GET', 'POST'])
+def spotifyRedirectSignup():
+    form = RegistrationForm()
+    code = request.args.get('code')
+    session[TOKEN_INFO] =  create_spotify_oauth().get_access_token(code)
+    try:
+        token_info = get_token()
+    except:
+        flash('not logged in', 'danger')
+        redirect(url_for('spotifylogin'))
+    sp = spotipy.Spotify(auth=token_info['access_token'])
+    userId = sp.me()['id']
+
+    if form.validate_on_submit():
+        hashedPass = bcrypt.generate_password_hash(form.confirm_password.data).decode('utf8')
+        newUser = Users(username = form.username.data, password = hashedPass, spotify_id = userId)
         db.session.add(newUser)
         db.session.commit()
-        current_user.username = userId
-        flash(f'Account {userId}! CHANGE YOUR PASSWORD NOW', 'danger')
-        return redirect(('profile'))
-    # return redirect(url_for('profile',_external=True))
+        flash(f'Account created for {form.username.data}!', 'success')
+        return redirect(url_for('profile'))
+    return render_template('registerspotify.html', title='registerspotify', form=form)
+
 
 # Pass though Navbar
 @app.context_processor
