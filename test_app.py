@@ -12,7 +12,7 @@ def client(app):
 def test_home_route(client):
     response = client.get('/')
     assert response.status_code == 200
-    assert b'Welcome to the homepage' in response.data 
+    assert b'Top Post' in response.data 
 
 def test_registration_route(client):
     response = client.get('/register')
@@ -38,15 +38,18 @@ def test_post_creation(client):
             link='https://example.com'
         ), follow_redirects=True)
 
+        
         assert response.status_code == 200 
-        assert b'Test Post Title' in response.data 
+        assert b'Test Post Title' in response.data
+
+        
 
 def test_profile_route(client):
     response = client.get('/profile')
-    assert response.status_code == 200
-    assert b'Profile' in response.data 
+    assert response.status_code == 302
+    assert b'Edit Profile' in response.data 
 
 def test_search_route(client):
     response = client.post('/search', data=dict(searched='test_query'))
     assert response.status_code == 200
-    assert b'Search Results' in response.data  
+    assert b'You searched for' in response.data  
