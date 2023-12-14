@@ -13,8 +13,10 @@ CREATE TABLE IF NOT EXISTS post (
     body TEXT NOT NULL,
     id INT,
     link VARCHAR(255),
-    username VARCHAR(16),
-    FOREIGN KEY (username) REFERENCES users (username)
+    userid INT,
+    likes INT,
+    liked_by VARCHAR(255),
+    FOREIGN KEY (userid) REFERENCES users (id)
 );
 
 CREATE TABLE IF NOT EXISTS comments (

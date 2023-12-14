@@ -10,7 +10,7 @@
         {% endif %}
     {% endwith %}
     <body>
-        <div class="container-sm d-flex flex-column" style="max-width: fit-content;margin-top: 5rem !important; margin: auto; align-items: baseline;"> 
+        <div class="container-sm d-flex flex-column" style="max-width: fit-content;margin-top: 2rem !important; margin: auto; align-items: baseline;"> 
             <form method="POST" action="">
                 {{ form.hidden_tag() }}
                 <fieldset class="form-group">
@@ -25,7 +25,6 @@
                                 {% endfor %}
                             </div>
                         {% else %}
-                            
                             {{ form.username(class="form-control form-control-lg") }} 
                         {% endif %}
                         {% if current_user.spotify_id is not none %}
@@ -90,8 +89,9 @@
                 </fieldset>
                 <div class="container-sm d-flex flex-column" style="gap: 1rem;">
                     {{ form.save(class="btn btn-outline-info") }}
+                    <a href="{{ url_for('delete_profile') }}" class="btn btn-danger" style="margin: 15px 0 0 0;">Delete Profile</a>
                 </div>
-                <a href="{{ url_for('delete_profile') }}" class="btn btn-danger">Delete Profile</a>
             </form>
+        </div>
     </body>
 {% endblock body %}

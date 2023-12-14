@@ -10,7 +10,7 @@
         {% endif %}
     {% endwith %}
 <body>
-    <div class="container-sm d-flex flex-column" style="max-width: fit-content; margin: auto;"> 
+    <div class="container-sm d-flex flex-column" style="max-width: fit-content; margin: auto; margin-top: 2rem;"> 
         <form method="POST" action="">
             {{ form.hidden_tag() }}
             <fieldset class="form-group">
@@ -55,7 +55,7 @@
 			</div>
         </form>
         
-        <div class="border-top pt-3 ">
+        <div class="border-top pt-3" style="text-align: center !important;">
             <small class="text-muted">
                 Need An Account? <a class="ml-2" href="{{ url_for('register') }}">Sign Up Now</a>
             </small>
