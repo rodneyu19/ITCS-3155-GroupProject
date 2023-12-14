@@ -46,6 +46,7 @@ def index():
 
     # Post with most likes
     most_liked_post = Post.query.order_by(desc(Post.likes)).first()
+    best_embed = most_liked_post.link.split('/')[-1]
 
     # Extract the last part of the link for embedding
     embeds = [post.link.split('/')[-1] for post in reversed(all_posts)] 
@@ -57,7 +58,7 @@ def index():
         username = 'Anonymous'
         userid = None
     
-    return render_template('home.html', all_users=all_users, all_posts=all_posts, latest_post=latest_post, embeds=embeds, username=username, userid=userid, like_counts=like_counts, most_liked_post=most_liked_post)
+    return render_template('home.html', all_users=all_users, all_posts=all_posts, latest_post=latest_post, embeds=embeds, username=username, userid=userid, like_counts=like_counts, most_liked_post=most_liked_post, best_embed = best_embed)
 
 @app.get('/post/new')
 @login_required
