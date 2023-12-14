@@ -1,0 +1,12 @@
+{% extends "layout.html" %}
+{% block title %}Page Not Found{% endblock %}
+{% block body %}
+<div style="text-align: center; margin-top:3%;">
+    <h1>Page Not Found</h1>
+    <p>What you were looking for is just not there.
+        <div class="btn btn-outline-info">
+            <a href="{{ url_for('index') }}" style="color: aliceblue;">go somewhere nice</a>
+        </div>
+</div>
+  
+{% endblock %}

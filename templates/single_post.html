@@ -9,8 +9,18 @@
             {% endfor %}
         {% endif %}
     {% endwith %}
+<style>
+    .dropdown-menu.show {
+        min-width: 6rem !important;
+        width: 100%;
+        height: 100%;
+        min-height: 5rem !important;
+        
+    }
+</style>
 <body>
     <div class="container mt-4">
+        <a href="{{ url_for('index') }}" class="btn btn-secondary mt-3" style="margin-bottom: 3%;">< Home</a>
         {%if embed %}
         <iframe style="border-radius:12px" src="https://open.spotify.com/embed/track/{{embed}}?utm_source=generator" width="100%" height="352" frameBorder="0" allowfullscreen="" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="lazy"></iframe>
         {% endif %}
@@ -47,8 +57,8 @@
                             </svg>
                         </button>
                         <div class="dropdown-menu" aria-labelledby="dropdownMenuLink">
-                            <a class="dropdown-menu-item" href="{{ url_for('edit_comment', comment_id=comment.comment_id) }}" data-toggle="modal" data-target="#editCommentModal{{ comment.comment_id }}">Edit</a>
-                            <a class="dropdown-menu-item" href="{{ url_for('delete_comment', comment_id=comment.comment_id) }}">Delete</a>
+                            <a class="dropdown-item" href="{{ url_for('edit_comment', comment_id=comment.comment_id) }}" data-toggle="modal" data-target="#editCommentModal{{ comment.comment_id }}">Edit</a>
+                            <a class="dropdown-item" href="{{ url_for('delete_comment', comment_id=comment.comment_id) }}">Delete</a>
                         </div>
                     {% endif %}
                 </li>
@@ -86,8 +96,6 @@
             </div>
             <button type="submit" class="btn btn-primary">Add Comment</button>
         </form>
-
-        <a href="{{ url_for('index') }}" class="btn btn-secondary mt-3">Return to Index</a>
     </div>
     <!-- Bootstrap JS scripts -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.4.1/dist/js/bootstrap.bundle.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
