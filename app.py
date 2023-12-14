@@ -25,11 +25,11 @@ SECRET_KEY = os.urandom(32)
 app.config['SECRET_KEY'] = SECRET_KEY
 TOKEN_INFO = 'token_info'
 
-if None in (os.getenv("DB_USER"), os.getenv("DB_PASS"), os.getenv("DB_HOST"), os.getenv("DB_PORT"), os.getenv("DB_NAME")):
-    raise ValueError("Fix the variables in your .env lmao")
+# if None in (os.getenv("DB_USER"), os.getenv("DB_PASS"), os.getenv("DB_HOST"), os.getenv("DB_PORT"), os.getenv("DB_NAME")):
+#     raise ValueError("Fix the variables in your .env lmao")
 
-app.config['SQLALCHEMY_DATABASE_URI'] = \
-    f'postgresql://{os.getenv("DB_USER")}:{os.getenv("DB_PASS")}@{os.getenv("DB_HOST")}:{os.getenv("DB_PORT")}/{os.getenv("DB_NAME")}'
+app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv('DB_URL')
+    # f'postgresql://{os.getenv("DB_USER")}:{os.getenv("DB_PASS")}@{os.getenv("DB_HOST")}:{os.getenv("DB_PORT")}/{os.getenv("DB_NAME")}'
 
 db.init_app(app)
 
