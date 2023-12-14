@@ -62,7 +62,7 @@ def index():
             username = 'Anonymous'
             userid = None
     except:
-        return page_not_found(500)   
+        return internal_error(500)   
     return render_template('home.html', all_users=all_users, all_posts=all_posts, latest_post=latest_post, embeds=embeds, username=username, userid=userid, like_counts=like_counts, most_liked_post=most_liked_post, best_embed = best_embed)
 
 @app.get('/post/new')
@@ -85,7 +85,7 @@ def create_post():
         db.session.add(new_post)
         db.session.commit()
     except:
-        return page_not_found(500)
+        return internal_error(500)
     return redirect('/')
     
 @app.route('/about')
@@ -108,7 +108,7 @@ def register():
             flash(f'Account created for {form.username.data}!', 'success')
             return redirect('/')  # Redirect to the homepage after successful signup
     except:
-        return page_not_found(500)
+        return internal_error(500)
     return render_template('register.html', title='register', form=form)
 
 @loginManager.user_loader
@@ -132,7 +132,7 @@ def login():
             else:
                 flash('Invalid username or password', 'danger')
     except:
-        return page_not_found(500)
+        return internal_error(500)
     return render_template('login.html', title='login', form=form)
 
 @app.route('/profile', methods=['GET', 'POST'])
@@ -174,7 +174,7 @@ def profile():
             form.firstname.data = current_user.firstname
             form.lastname.data = current_user.lastname
     except:
-        return page_not_found(500)
+        return internal_error(500)
     return render_template('profile.html', title='profile', form=form)
 
 
@@ -190,12 +190,11 @@ def spotifylogin():
         authUrl = create_spotify_oauth().get_authorize_url()
         return redirect(authUrl)
     except:
-        return page_not_found(500)
+        return internal_error(500)
 
 @app.route('/spotifyredirect')
 def spotifyRedirect():
     try:
-        session.clear()
         code = request.args.get('code')
         session[TOKEN_INFO] = create_spotify_oauth().get_access_token(code,check_cache=False)
         try:
@@ -217,15 +216,14 @@ def spotifyRedirect():
             flash(f'User does not exist, create account first', 'danger')
             return redirect(('spotifyredirectsignup'))
     except:
-        return page_not_found(500)
+        return internal_error(500)
 
 @app.route('/spotifyredirectsignup', methods=['GET', 'POST'])
 def spotifyRedirectSignup():
     try:
-        session.clear()
         form = RegistrationForm()
         code = request.args.get('code')
-        session[TOKEN_INFO] =  create_spotify_oauth().get_access_token(code,check_cache=False)
+        session[TOKEN_INFO] =  create_spotify_oauth().get_access_token(code)
         try:
             token_info = get_token()
         except:
@@ -242,7 +240,7 @@ def spotifyRedirectSignup():
             flash(f'Account created for {form.username.data}!', 'success')
             return redirect(url_for('profile'))
     except:
-        return page_not_found(500)
+        return internal_error(500)
     return render_template('registerspotify.html', title='registerspotify', form=form)
 
 
@@ -271,7 +269,7 @@ def search():
                 return redirect(('home'))
         # Return a response
     except:
-        return page_not_found(500)
+        return internal_error(500)
     return render_template("search.html", form=form)
 	
     
@@ -285,7 +283,7 @@ def get_token():
         if(is_expired):
             redirect(url_for('login', _external=True))
     except:
-        return page_not_found(500)
+        return internal_error(500)
 
     return token_info
 
@@ -306,7 +304,7 @@ def delete_post(post_id):
         db.session.commit()
         return redirect('/')
     except:
-        return page_not_found(500)
+        return internal_error(500)
 
 @app.route('/post/edit/<int:post_id>', methods=['GET', 'POST'])
 def edit_post(post_id):
@@ -320,7 +318,7 @@ def edit_post(post_id):
             flash('Post updated successfully', 'success')
             return redirect('/')
     except:
-        return page_not_found(500)
+        return internal_error(500)
     return render_template('edit_post.html', post=post, post_id=post_id)
 
 @app.route('/post/<int:post_id>/comment', methods=['POST'])
@@ -342,7 +340,7 @@ def add_comment(post_id):
         flash('Comment added successfully', 'success')
         return redirect(url_for('get_single_post', post_id=post_id))
     except:
-        return page_not_found(500)
+        return internal_error(500)
 
 
 
@@ -357,7 +355,7 @@ def get_single_post(post_id):
         embed = embed_parts[-1]
         return render_template('single_post.html', post=single_post, comments=comments, embed=embed, all_users=all_users)
     except:
-        return page_not_found(500)
+        return internal_error(500)
 @app.route('/profile/delete', methods=['GET', 'POST'])
 @login_required
 def delete_profile():
@@ -376,7 +374,7 @@ def delete_profile():
 
         return render_template('delete_profile.html', title='Delete Profile')
     except:
-        return page_not_found(500)
+        return internal_error(500)
 @app.route('/comment/delete/<int:comment_id>')
 @login_required
 def delete_comment(comment_id):
@@ -398,7 +396,7 @@ def delete_comment(comment_id):
 
         return redirect(url_for('get_single_post', post_id=comment.post_id))
     except:
-        return page_not_found(500)
+        return internal_error(500)
 @app.route('/comment/edit/<int:comment_id>', methods=['GET', 'POST'])
 @login_required
 def edit_comment(comment_id):
@@ -417,7 +415,7 @@ def edit_comment(comment_id):
 
         return redirect(url_for('get_single_post', post_id=comment.post_id))
     except:
-        return page_not_found(500)
+        return internal_error(500)
 @app.route('/like_post/<int:post_id>', methods=['GET'])
 @login_required
 def like_post(post_id):
@@ -441,12 +439,12 @@ def like_post(post_id):
         
         return redirect(url_for('index'))
     except:
-        return page_not_found(500)
+        return internal_error(500)
 @app.errorhandler(404)
 def page_not_found(e):
     return render_template('404.html'), 404
 @app.errorhandler(500)
-def page_not_found(e):
+def internal_error(e):
     return render_template('500.html'), 500
 
 if __name__ == '__main__':
