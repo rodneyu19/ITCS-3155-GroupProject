@@ -265,7 +265,7 @@ def search():
                 posts = posts.order_by(Post.title).all()
                 return render_template("search.html", form = form, searched = Post.searched, posts = posts)
             else:
-                error = "Cant search nothing"
+                error = "Nothing found"
                 return redirect(('home'))
         # Return a response
     except:
