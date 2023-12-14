@@ -46,7 +46,10 @@ def index():
 
     # Post with most likes
     most_liked_post = Post.query.order_by(desc(Post.likes)).first()
-    best_embed = most_liked_post.link.split('/')[-1]
+
+    best_embed = 'a'
+    if most_liked_post:
+        best_embed = most_liked_post.link.split('/')[-1]
 
     # Extract the last part of the link for embedding
     embeds = [post.link.split('/')[-1] for post in reversed(all_posts)] 
