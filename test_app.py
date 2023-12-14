@@ -82,6 +82,26 @@ class AppTesting(unittest.TestCase):
         test_user = Users(username='testuser', password='testpassword')
         db.session.add(test_user)
         db.session.commit()
+        login_user(test_user, remember=True ,force=True)
+        response = self.client.get('/profile/edit')
+        self.assertEqual(response.status_code, 200)
+
+            # Perform an edit profile action (replace with your actual form data)
+            # response = self.client.post('/profile/edit', data=dict(
+			username='newusername',
+			firstname='New',
+			lastname='User',
+			password='newpassword',
+			confirm_password='newpassword',
+			save=True
+		), follow_redirects=True)
+
+            # Assert that the edit was successful or check for expected behavior
+            self.assertEqual(response.status_code, 200)
+            # Add more assertions based on your application's behavior
+
+            # Log out the user after testing (optional)
+            logout_user()
         
 
         # with self.client:
@@ -112,26 +132,7 @@ class AppTesting(unittest.TestCase):
             
 
             # Access the edit profile page
-            login_user(test_user, remember=True ,force=True)
-            response = self.client.get('/profile/edit')
-            self.assertEqual(response.status_code, 200)
-
-            # Perform an edit profile action (replace with your actual form data)
-            response = self.client.post('/profile/edit', data=dict(
-                username='newusername',
-                firstname='New',
-                lastname='User',
-                password='newpassword',
-                confirm_password='newpassword',
-                save=True
-            ), follow_redirects=True)
-
-            # Assert that the edit was successful or check for expected behavior
-            self.assertEqual(response.status_code, 200)
-            # Add more assertions based on your application's behavior
-
-            # Log out the user after testing (optional)
-            logout_user()
+            
             
 	
 
