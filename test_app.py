@@ -115,6 +115,7 @@ class AppTesting(unittest.TestCase):
         ), follow_redirects=True)
         self.assertEqual(response.status_code, 200)
         self.assertFalse(current_user.is_authenticated)
+        
 	def test_edit_profile(self):
         # Assuming you have a logged-in user
         test_user = Users(username='testuser', password='testpassword')

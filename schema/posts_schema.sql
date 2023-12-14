@@ -14,6 +14,8 @@ CREATE TABLE IF NOT EXISTS post (
     id INT,
     link VARCHAR(255),
     userid INT,
+    likes INT,
+    liked_by VARCHAR(255),
     FOREIGN KEY (userid) REFERENCES users (id)
 );
 
