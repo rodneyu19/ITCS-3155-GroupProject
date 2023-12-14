@@ -169,6 +169,7 @@ def profile():
 
 @app.route("/logout")
 def logout():
+    session.clear()
     logout_user()
     return redirect('login')
 
@@ -181,7 +182,7 @@ def spotifylogin():
 def spotifyRedirect():
     session.clear()
     code = request.args.get('code')
-    session[TOKEN_INFO] = create_spotify_oauth().get_access_token(code)
+    session[TOKEN_INFO] = create_spotify_oauth().get_access_token(code,check_cache=False)
     try:
         token_info = get_token()
     except:
@@ -204,9 +205,10 @@ def spotifyRedirect():
 
 @app.route('/spotifyredirectsignup', methods=['GET', 'POST'])
 def spotifyRedirectSignup():
+    session.clear()
     form = RegistrationForm()
     code = request.args.get('code')
-    session[TOKEN_INFO] =  create_spotify_oauth().get_access_token(code)
+    session[TOKEN_INFO] =  create_spotify_oauth().get_access_token(code,check_cache=False)
     try:
         token_info = get_token()
     except:
