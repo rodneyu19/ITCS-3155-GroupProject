@@ -17,10 +17,16 @@
         min-width: 6rem !important;
         width: 100%;
     }
+    @media (min-width: 576px){
+        .col-md-4 {
+            max-width: 66.666667%;
+            padding: 4%;
+        }
+    }
 </style>
 <body>
     <div class="my-4"></div>
-    <div class="row">
+    <div class="row" style="margin-right: 0;">
         <div class="col-sm-8">    
             <div class="container">
             {% for post in all_posts|reverse %}
