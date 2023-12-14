@@ -12,6 +12,12 @@
             {% endfor %}
         {% endif %}
     {% endwith %}
+<style>
+    .dropdown-menu.show {
+        min-width: 6rem !important;
+        width: 100%;
+    }
+</style>
 <body>
     <div class="my-4"></div>
     <div class="row">
@@ -71,7 +77,7 @@
             </div>
         </div>
         <!-- Sidebar Snippet -->
-        <div class="col-md-4 order-md-last">
+        <div class="col-md-4 order-md-last" style="padding-right: 3%;">
                 <div class="content-section">
                     <h3 class="text-center">Top Post</h3>
                     <ul class="list-group">
