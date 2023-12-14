@@ -197,7 +197,7 @@ def spotifyRedirect():
         current_user.username = userId
         next_page = request.args.get('next')
         flash('You have been logged in!', 'success')
-        return redirect(next_page) if next_page else redirect(('profile'))
+        return redirect(next_page) if next_page else redirect(('/'))
     else:
         flash(f'User does not exist, create account first', 'danger')
         return redirect(('spotifyredirectsignup'))
@@ -302,7 +302,7 @@ def add_comment(post_id):
     comment_text = request.form.get('comment')
 
     if not comment_text:
-        flash('Comment cannot be empty', 'error')
+        flash('Comment cannot be empty', 'danger')
         return redirect(url_for('get_single_post', post_id=post_id))
 
     new_comment = Comment(comment=comment_text, id=current_user.id, post_id=post_id)
