@@ -26,7 +26,7 @@ class Users(db.Model, UserMixin):
     password = db.Column(db.String(255), nullable=False)
     firstname = db.Column(db.String(16))
     lastname = db.Column(db.String(16))
-    spotify_id = db.Column(db.String(16))
+    spotify_id = db.Column(db.String(255))
 
 class Comment(db.Model):
     __tablename__ = 'comments'
