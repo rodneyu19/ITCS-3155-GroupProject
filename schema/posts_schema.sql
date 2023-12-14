@@ -4,7 +4,7 @@ CREATE TABLE IF NOT EXISTS users (
     password VARCHAR(255) NOT NULL,
     firstname VARCHAR(16),
     lastname VARCHAR(16),
-    spotify_id VARCHAR(16)
+    spotify_id VARCHAR(255)
 );
 
 CREATE TABLE IF NOT EXISTS post (
