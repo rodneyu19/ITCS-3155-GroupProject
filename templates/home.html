@@ -18,7 +18,7 @@
         <div class="col-sm-8">    
             <div class="container">
             {% for post in all_posts|reverse %}
-                <div class="card" style="width: 115%;">
+                <div class="card" style="width: 100%;">
                     <h5 class="card-header">
                         <a class="text-purple" href="{{ url_for('get_single_post', post_id=post.post_id) }}">
                             {{ post.title }}
@@ -71,17 +71,16 @@
             </div>
         </div>
         <!-- Sidebar Snippet -->
-        <div class="col-md-4 order-md-last" style="padding-left: 10%; padding-right: 2%">
+        <div class="col-md-4 order-md-last">
                 <div class="content-section">
                     <h3 class="text-center">Top Post</h3>
                     <ul class="list-group">
                         <li class="list-group-item list-group-item-light">
                             {% if most_liked_post %}
-                            <div class="card" style="width: 100%rem;">
+                            <div class="card" style="width: 100%;">
                                 <div class="card-body">
                                     <h5 class="card-title">{{ most_liked_post.title }}</h5>
                                     <iframe style="border-radius:12px" src="https://open.spotify.com/embed/track/{{best_embed}}?utm_source=generator" width="100%" height="100" frameBorder="0" allowfullscreen="" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="lazy"></iframe>
-
                                     <p class="card-text">{{ most_liked_post.body }}</p>
                                 </div>
                             {% else %}
