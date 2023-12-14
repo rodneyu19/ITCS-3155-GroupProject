@@ -44,6 +44,9 @@ def index():
     like_counts = db.session.query(Post.post_id, func.sum(Post.likes)).group_by(Post.post_id).all()
     like_counts = dict(like_counts)
 
+    # Post with most likes
+    most_liked_post = Post.query.order_by(desc(Post.likes)).first()
+
     # Extract the last part of the link for embedding
     embeds = [post.link.split('/')[-1] for post in reversed(all_posts)] 
 
@@ -54,7 +57,7 @@ def index():
         username = 'Anonymous'
         userid = None
     
-    return render_template('home.html', all_users=all_users, all_posts=all_posts, latest_post=latest_post, embeds=embeds, username=username, userid=userid, like_counts=like_counts)
+    return render_template('home.html', all_users=all_users, all_posts=all_posts, latest_post=latest_post, embeds=embeds, username=username, userid=userid, like_counts=like_counts, most_liked_post=most_liked_post)
 
 @app.get('/post/new')
 @login_required
